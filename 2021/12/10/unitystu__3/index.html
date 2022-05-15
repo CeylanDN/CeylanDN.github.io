@@ -1,0 +1,231 @@
+<!DOCTYPE html><html lang="ch" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>从零开始独立游戏开发学习笔记（三） -- Unity基础（二） | J's Blog</title><meta name="keywords" content="Getting Started"><meta name="author" content="Jiang"><meta name="copyright" content="Jiang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="从零开始独立游戏开发学习笔记（一） – Unity基础（二）1. Physic Material上一次做 cube 的时候。cube 接触地面后会向前滚。这是因为有摩擦力。为了让物体平滑地滚动，我们可以去掉摩擦力。 在 project panel 里新建一个 Pyysic Material。用法和 Material 一致。直接拖到 Object 上即可。2. 然后可以在 Box Collider">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始独立游戏开发学习笔记（三） -- Unity基础（二）">
+<meta property="og:url" content="http://example.com/2021/12/10/unitystu__3/index.html">
+<meta property="og:site_name" content="J&#39;s Blog">
+<meta property="og:description" content="从零开始独立游戏开发学习笔记（一） – Unity基础（二）1. Physic Material上一次做 cube 的时候。cube 接触地面后会向前滚。这是因为有摩擦力。为了让物体平滑地滚动，我们可以去掉摩擦力。 在 project panel 里新建一个 Pyysic Material。用法和 Material 一致。直接拖到 Object 上即可。2. 然后可以在 Box Collider">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/img/AVA.jpg">
+<meta property="article:published_time" content="2021-12-10T03:22:00.000Z">
+<meta property="article:modified_time" content="2022-05-15T10:09:37.581Z">
+<meta property="article:author" content="Jiang">
+<meta property="article:tag" content="Getting Started">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/AVA.jpg"><link rel="shortcut icon" href="/true"><link rel="canonical" href="http://example.com/2021/12/10/unitystu__3/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '从零开始独立游戏开发学习笔记（三） -- Unity基础（二）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-05-15 18:09:37'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/AVA.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">J's Blog</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">从零开始独立游戏开发学习笔记（三） -- Unity基础（二）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-12-10T03:22:00.000Z" title="Created 2021-12-10 11:22:00">2021-12-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2022-05-15T10:09:37.581Z" title="Updated 2022-05-15 18:09:37">2022-05-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Getting-Started/">Getting Started</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="从零开始独立游戏开发学习笔记（三） -- Unity基础（二）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="从零开始独立游戏开发学习笔记（一）-–-Unity基础（二）"><a href="#从零开始独立游戏开发学习笔记（一）-–-Unity基础（二）" class="headerlink" title="从零开始独立游戏开发学习笔记（一） – Unity基础（二）"></a>从零开始独立游戏开发学习笔记（一） – Unity基础（二）</h1><h2 id="1-Physic-Material"><a href="#1-Physic-Material" class="headerlink" title="1. Physic Material"></a>1. Physic Material</h2><p>上一次做 cube 的时候。cube 接触地面后会向前滚。这是因为有摩擦力。为了让物体平滑地滚动，我们可以去掉摩擦力。</p>
+<p>在 project panel 里新建一个 Pyysic Material。用法和 Material 一致。直接拖到 Object 上即可。2. 然后可以在 Box Collider 里看到这个 asset 文件。双击该文件或者 project panel 里的文件可以打开关于这个 physic material 的 Inspector。可以改变其属性。</p>
+<p>将两个摩擦力参数都改成 0，运行游戏，发现 cube 不会再滚动了。</p>
+<h2 id="2-变量"><a href="#2-变量" class="headerlink" title="2. 变量"></a>2. 变量</h2><p>为什么要专门提到变量。因为 Unity 可以让你在 Inspector 里看到并改动 C# Script 里变量的值，只需要声明变量为 public。然后变量就可以出现在 Script 组件的属性里了。</p>
+<p>其实之前声明的 RigidBody 类型的 rb，也是一个变量。然后后续连接的时候我们把 cube 的 RigidBody 赋值给这个变量。</p>
+<p>顺带一提，Unity 里的数值变量&#x2F;属性，可以把鼠标移到这行属性左边的属性名上，可以看到鼠标箭头变了。表示可以左右拖拽改变数值。因为没有明显的提示所以提一下。</p>
+<h2 id="3-按键"><a href="#3-按键" class="headerlink" title="3. 按键"></a>3. 按键</h2><p>在 Update 里可以监听按键事件。使用 Input.GetKey(“w”) 即可。 此外 input 事件在 Update 里监听更好，而不是 FixedUpdate。比如说在 Update 里监听按键。然后赋值给一个布尔变量，再在 FixedUpdate 里根据这个变量来判断。</p>
+<h2 id="4-FixedUpdate-和-Update-的区别"><a href="#4-FixedUpdate-和-Update-的区别" class="headerlink" title="4. FixedUpdate 和 Update 的区别"></a>4. FixedUpdate 和 Update 的区别</h2><p>Update 的调用是每帧调用一次。但是每一帧的处理时间很可能不一样。<br>而 FixedUpdate 是按照固定时间间隔调用的，而且 FixedUpdate 调用后会立刻进行物理计算。因此任何对 RIgidBody 的物理运算都应该在 FixedUpdate 里进行，因为你当然希望你的代码运行后能够立刻改变物理状态。</p>
+<p>所以如果用 FixedUpdate 就可以不需要用 Time.deltaTime 来 normalize 了。 （不过有自己的 FixedDeltaTime，是一个固定值。当然你也可以在游戏运行时改变它以调整 FixedUpdate 的运行速率）</p>
+<p>即使在 Update 里用 Time.deltaTime 也不如用 FixedUpdate。因为 Time.deltaTime 毕竟是上一帧花费的时间，而不是这一帧。也许一秒内移动的距离是固定住了，但是物理运行速度不稳定。</p>
+<p>但是像是按键输入这种行为，则一定要放在 update 里。这是为什么呢？</p>
+<p>举个例子，你按了一下跳跃键，因为是跳跃键，所以你只按一次。然后你按键的这一刹那，刚好没赶上 FixedUpdate 执行，于是你的按键没有被监听到，因此你跳不起来，这甚至连延迟都不是，直接就是没监听到。</p>
+<p>但是你放在 update 里，则是一定会被监听到的。</p>
+<h2 id="5-相机跟随"><a href="#5-相机跟随" class="headerlink" title="5. 相机跟随"></a>5. 相机跟随</h2><p>如果想让相机跟随物体，可以直接把相机拖到物体上，成为其 child。但是这样一来让物体旋转的时候相机也跟着旋转了，这样不好。所以我们用脚本来实现：</p>
+<p>我们让 camera 的 position 等于 cube 的 position 加上一个偏移值。</p>
+<p>Vector3 储存 3 个 float 值。</p>
+<h2 id="6-碰撞"><a href="#6-碰撞" class="headerlink" title="6. 碰撞"></a>6. 碰撞</h2><p>创建一个障碍物，当碰撞的时候，让 player 无法行动，代码如下：</p>
+<p>其中 PlayerMovement 其实就是之前我们创建的 Sript 的名字（因为会按照 Script 名字自动创建一个类，然后创建的就是那个类的类型变量），然后在 Unity 里将其链接。最后在 c# 里将其 enabled 关掉即可停止 player 的行动。</p>
+<p>OnCollisionEnter 会在物体碰撞发生的时候调用。可接受一个参数，就是这个碰撞事件。这个碰撞事件里的 collider 就是撞到的物体。</p>
+<p>tag 可以在 Unity 里添加。Inspector 的右上角，有一些内置的 tag，但我们这里自己添加一个新的 Obstacle tag。</p>
+<h2 id="6-Prefabs"><a href="#6-Prefabs" class="headerlink" title="6. Prefabs"></a>6. Prefabs</h2><p>当需要创建一群相同的 Objects 的时候，一个一个复制过去虽然也可以，但是当你需要对这些 Objects 进行统一修改的时候那就麻烦了。于是出现了 Prefab 这么一个概念。<br>创建方式是从 Hierachy panel 里把想要变成 Prefab 的 Object 直接拖到下方 Project Panel 里。就变成了一个 Prefab，然后可以直接把这个 Prefab 拖到中央视图。就可以创建一个个相同的 Objects 了。</p>
+<p>此时如果在 Prefab 的 Inspector 里改动，所有改动都会影响到所有通过这个 Prefab 创建的 Objects。</p>
+<p>也可以改动单独的 Object，不会对其他的有影响。如果想把这个改动映射到其它 Objects 上，可以选择 Object 的 Inspector 里上方的 Override 属性里选择把哪些改动映射到其它 Objects 上。</p>
+<h2 id="7-透视"><a href="#7-透视" class="headerlink" title="7. 透视"></a>7. 透视</h2><p>Scene view 里右上角的那个显示 x,y,z 轴的东西，可以点击 x,y,z 轴来跳转到那个轴的视角上。<br>而点击中央则可以切换是否透视。</p>
+<p>这是 isometric 的（我也不知道怎么翻，等比例？）：</p>
+<p>可以看到地面是平行的，前后所有线都是平行，不符合透视规则</p>
+<ol start="2">
+<li>这是 perspective 的（透视：） - 可以看出透视的规律（图中绿线）</li>
+</ol>
+<p>除了画面右上角，选择物体的时候也有 x,y,z 轴显示（Which 你已经看到过也用过很多次了），拖动 x,y,z 其中任意两轴之间的那个小方块，可以同时移动这两个轴。按住中间的那个方块则是所有轴一起改动。</p>
+<h2 id="8-Layer"><a href="#8-Layer" class="headerlink" title="8. Layer"></a>8. Layer</h2><p>当你的项目比较复杂，有些时候场景东西实在是太多。当你想鼠标左键拉框选取其中几个 Objects 的时候，总是会把一些诸如地面，草地 等你不想选中的东西选到。而如果在 hierachy panel 里选又太麻烦了，因为这些东西不一定在一起。你也不一定能在 hierachy 里区分出它们。</p>
+<p>那么这个时候就可以用 layer 来将你的 object 分层。（或者理解为 group 也可以）我们把这些环境的东西专门放到一个 layer 叫做 environment，然后让这个 layer 里的东西无法通过鼠标被选中就可以了。</p>
+<p>我们点击地面，然后在 Inspector 上方的 layer 里，可以看到其实 unity 已经有一些预制 layer 名字了，并且可以看到我们之前生成的 Object 都已经被放在一个叫做 Default 的 layer 里了。</p>
+<p>这里我们选择 Add Layer 创建一个新的层，取名叫做 Environment。（注意虽然你是在选择地面后里加的 Add Layer，但是 Unity 并不会给你自动绑定上去，所以还要你点到地面，再在 layer 里选择 Environment 才行）</p>
+<p>然后我们点击屏幕右上角的 Layer（调整布局左边的那个），然后将 Environment 设置成无法选中（截图标红的那个）：</p>
+<p>之后中央视图里鼠标左键拉框的或者直接点到地面的时候，就不会选中地面了。只能在 hierachy 里选择。</p>
+<h2 id="9-snap"><a href="#9-snap" class="headerlink" title="9. snap"></a>9. snap</h2><p>中央视图上方一排工具里，可以选择显示网格。然后当按住 control 键，再移动物体的时候，就会附着在网格上。然后网格工具右边的一个按钮可以设置 snap 的大小，比如说设置为 1 的时候，按住 control 后，物体就只能 1 格 1 格地移动。也可以设置为 1&#x2F;3（可以直接打1&#x2F;3，Unity 会自动计算），这样物体就只能 1&#x2F;3 格地移动。对齐的时候很有效。</p>
+<h2 id="10-fog"><a href="#10-fog" class="headerlink" title="10. fog"></a>10. fog</h2><p>远方的东西如果都能看到，会很影响视野。和近处的东西混在一起。这个时候可以加 fog。在上方工具栏里选择 Window-&gt;Rendering-&gt;Lighting。可以把它拖到 Inspector 右边粘附成一个 tab 页。其下的一个叫做 Environment 的 sub-tab 里，勾选 Fog。可以调整雾的颜色（比如说吸色成 skybox 的颜色），雾的浓度等等</p>
+<h2 id="11-高速物体的碰撞检测失效"><a href="#11-高速物体的碰撞检测失效" class="headerlink" title="11. 高速物体的碰撞检测失效"></a>11. 高速物体的碰撞检测失效</h2><p>如果物体速度过快，碰撞检测是有可能失效的。</p>
+<p>解决方案是在 Obstacle Prefab 的 RigidBody 组件里将 Collision Detection 改成 continuous。cube 的改成 continuous dynamic。</p>
+<p>然后在 Project Setting-&gt;Time 里减少 Fixed Timestep。其实这个就是 Time.fixedDeltaTime，减少了之后，FixedUpdate 运行频率就会更快，也就是说物理更新也会更快。</p>
+<h2 id="12-UI"><a href="#12-UI" class="headerlink" title="12. UI"></a>12. UI</h2><p>我们想创建一个在屏幕中央显示已获得分数的 UI。</p>
+<p>在 hierarchy 中创建一个 UI-&gt;Text object。hierarchy 会新建一个 canvas-&gt;text Object。canvas 就是用来放置你的 UI Object 的。</p>
+<p>toggle 中央视图为 2d，然后按 f 自动 focus 到刚创建的 text 上。</p>
+<p>在 Inspector 里把 vertical overflow 设置为 overflow，不然高度太高的话，文本直接全部消失。</p>
+<p>调整文本大小（font size）。选文本对齐方式（Alignment）（中央居中，垂直居中等）。</p>
+<p>下一个字体，直接拖到 Asset 里。然后换成这个字体。text 里可以更改文本字符串。</p>
+<p>还有个问题，此时你把屏幕放大缩小，字体大小不变。但我们想根据 window size 而变化。那么我们需要进入 canvas 的 Inspector，将 Canvas Scaler-&gt;UI Scale Mode 改成 Scale With Screen Size，然后将 Canvas Scaler-&gt;Match 拖到最右边（和 Height 匹配）。</p>
+<p>这样我们 UI 的样式就调整好了。</p>
+<p>注：Asset 文件夹太乱了，可以在里面建立 folder 整理一下。Asset 文件夹本身也是对应你项目文件夹里的 Asset 文件夹的。你导入文件其实就是往那个文件夹里复制文件罢了。</p>
+<p>接下来我们想实时更新这个 text 的文本（有点语病哈，但是前者 text 指的是 text 这个 UI，后者“文本”指的是这个 text 的文本内容），那么就需要 Script 了：</p>
+<p>创建一个 Script。</p>
+<p>在 Script 里引用 player 的 transform 信息。之前讲过了就不说了。</p>
+<p>代码如下：</p>
+<h2 id="13-Game-Over"><a href="#13-Game-Over" class="headerlink" title="13. Game Over"></a>13. Game Over</h2><p>我们想让游戏结束后可以重来，UI 的展示等等。我们可以用一个 Game Manager 来做这件事。</p>
+<p>我们在 Hierarchy 里创建一个空物体，添加脚本，命名为 GameManager。可以看到 Unity 会自动识别这个名字，然后 asset 处显示的 icon 就变成了一个齿轮。我们在里面重置游戏，如下代码：</p>
+<p>然后我们在之前写的 PlayerCollision 里运行这段脚本就好了。</p>
+<p>这里有一个问题，怎么引用这个脚本，像之前那样，因为脚本本身会新建一个 class，我们建一个变量储存？</p>
+<p>可惜这样不行。因为当我们重置游戏后，player 被销毁再重建，就会忘记销毁前引用的变量（当然，引用自己的或者非引用类型的不会），同理其他 Object 上引用这个 object 的变量也会消失。</p>
+<p>因此我们要实时地去寻找，代码如下：</p>
+<p>不只是碰撞发生的时候需要重置游戏，当 cube 掉出去的时候也需要：</p>
+<p>当然以上不需要用 GetComponent，直接用 rb.position.y 就可以，只是演示一下。</p>
+<p>以上还是有 bug，当重置游戏的时候，会发现光照都没有了。因为我们改变了光照设置，却没有生成。然后现在 auto 是关掉的。所以我们去之前打开过的 Lighting 面板，在 Workflow Setting 里 Generate Lighting 一下即可。</p>
+<p>然后我们需要加一个延迟，当游戏结束后等几秒再重置，代码如下：</p>
+<h2 id="14-游戏胜利"><a href="#14-游戏胜利" class="headerlink" title="14. 游戏胜利"></a>14. 游戏胜利</h2><p>14.1 添加 Trigger<br>创建一个 cube，拉长放在你想结束游戏的位置，当 player 碰到它时胜利。不过我们要把它的 Mesh Renderer 关掉，这样就看不见它了。</p>
+<p>但是问题来了，我们又选不中它了，所以要加一个 icon 以便选中。在 Inspector 里面左上方可以选择 icon。不过可能显示的比较小或者不透明度太低。我们在 scene view 上方的 gizmos 列表里最上方找到 3d icons，把拖拽条往右边拖就可以让 icon 显示地更明显。</p>
+<p>把 isTrigger 打开，这样就会被物理引擎忽视，player 碰到它会无视掉直接穿过。</p>
+<p>我们新建一个 Script，里面写一个 OnTriggerEnter 函数，当有 Object 碰到这个 trigger 时这个函数就会被调用。（所以不要让 trigger 和其它 Object 重合，以免游戏刚开始就触发了）（当然也可以在里面判断一下碰撞的是哪个 Object 就是了）</p>
+<p>14.2 添加 panel<br>我们希望胜利的时候，画面变成通关提示。</p>
+<p>在 hierarchy 上右键，新建一个 UI-&gt;panel，这样就会在 canvas 下新出现一个 panel。</p>
+<p>进入 panel inspector，将 source image 设置成 None，意思是我们用纯色当背景。设置一下 color，如果你发现颜色半透明，可能是 color 部分不透明度较低（准确来说是 Alpha 值）。</p>
+<p>在 panel 上而不是空白处右键新建 text，这样 text 就会在 panel 下作为 child，而不是平级。</p>
+<p>调整一下想要的样式。</p>
+<p>Inspector 最左上方，将勾选去掉，可以看到屏幕中已经不显示这个 panel 了，我们要在 Script 中启用它。</p>
+<p>14.3 胜利脚本<br>虽然可以在 OnTriggerEnter 里操作，但是游戏胜利这种应该在 GameManager 里操作。所以我们在 OnTriggerEnter 所在脚本中引入 GameManager。这里我们不需要用 FindObjectOfType，因为我们不会销毁再重新生成 trigger。直接用变量引用即可。</p>
+<p>然后在 GameManager 里 enable 我们刚建好的 panel。</p>
+<p>&#x2F;&#x2F; GameObject 引用整个 Objectpublic GameObject WinningPanel;public void Win(){    &#x2F;&#x2F; 启用    WinningPanel.SetActive(true); }</p>
+<p>14.4 动画<br>直接显示 pane了没什么意思，加动画比较有趣，所以我们开始加动画。</p>
+<p>首先把动画窗口打开，上方工具栏里 window-&gt;Animation-&gt;Animation。（拖到下方附着比较好）</p>
+<p>创建一个 animation，会打开资源管理器，选择放置的位置。我们新建一个文件夹叫做 Animation，然后在里面创建即可。</p>
+<p>然后打开 project panel 可以看到里面有两个文件。一个是我们创建的 Animation，关掉 loop 因为我们不想要。第二个是 Animation Controller，控制 Animation 的各个状态等。</p>
+<p>回到 Animation 视窗（选中 UI panel 的情况下），可以看到 timeline。点击左边红色的 recording 按钮，timeline 变成红色，就可以记录所有的改动了。Aniamtion 的创造和 AE（视频后期软件那个 AE） 一样，靠关键帧。进入 recording 状态后，所有的改动都会变成 keyframe。然后就该怎么做怎么做吧。 </p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">Jiang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2021/12/10/unitystu__3/">http://example.com/2021/12/10/unitystu__3/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Getting-Started/">Getting Started</a></div><div class="post_share"><div class="social-share" data-image="/img/AVA.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/01/12/unitystu__4/"><img class="prev-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='https://sm.ms/image/eRux7nWkpUiEcts'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">从零开始独立游戏开发学习笔记（三） -- Unity基础（三）-结束</div></div></a></div><div class="next-post pull-right"><a href="/2021/11/30/os_study_4/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='https://sm.ms/image/eRux7nWkpUiEcts'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">THU《操作系统》学习笔记——实验一：bootloader启动ucoreos</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2021/11/10/unitystu__1/" title="从零开始独立游戏开发学习笔记（一） -- Getting Started"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-10</div><div class="title">从零开始独立游戏开发学习笔记（一） -- Getting Started</div></div></a></div><div><a href="/2021/11/11/unitystu__2/" title="从零开始独立游戏开发学习笔记（二） -- Unity基础（一）"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-11</div><div class="title">从零开始独立游戏开发学习笔记（二） -- Unity基础（一）</div></div></a></div><div><a href="/2022/01/12/unitystu__4/" title="从零开始独立游戏开发学习笔记（三） -- Unity基础（三）-结束"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-12</div><div class="title">从零开始独立游戏开发学习笔记（三） -- Unity基础（三）-结束</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/AVA.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Jiang</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%8B%AC%E7%AB%8B%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89-%E2%80%93-Unity%E5%9F%BA%E7%A1%80%EF%BC%88%E4%BA%8C%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">从零开始独立游戏开发学习笔记（一） – Unity基础（二）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Physic-Material"><span class="toc-number">1.1.</span> <span class="toc-text">1. Physic Material</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%8F%98%E9%87%8F"><span class="toc-number">1.2.</span> <span class="toc-text">2. 变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%8C%89%E9%94%AE"><span class="toc-number">1.3.</span> <span class="toc-text">3. 按键</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-FixedUpdate-%E5%92%8C-Update-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.4.</span> <span class="toc-text">4. FixedUpdate 和 Update 的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%9B%B8%E6%9C%BA%E8%B7%9F%E9%9A%8F"><span class="toc-number">1.5.</span> <span class="toc-text">5. 相机跟随</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E7%A2%B0%E6%92%9E"><span class="toc-number">1.6.</span> <span class="toc-text">6. 碰撞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Prefabs"><span class="toc-number">1.7.</span> <span class="toc-text">6. Prefabs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E9%80%8F%E8%A7%86"><span class="toc-number">1.8.</span> <span class="toc-text">7. 透视</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Layer"><span class="toc-number">1.9.</span> <span class="toc-text">8. Layer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-snap"><span class="toc-number">1.10.</span> <span class="toc-text">9. snap</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-fog"><span class="toc-number">1.11.</span> <span class="toc-text">10. fog</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E9%AB%98%E9%80%9F%E7%89%A9%E4%BD%93%E7%9A%84%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B%E5%A4%B1%E6%95%88"><span class="toc-number">1.12.</span> <span class="toc-text">11. 高速物体的碰撞检测失效</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-UI"><span class="toc-number">1.13.</span> <span class="toc-text">12. UI</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-Game-Over"><span class="toc-number">1.14.</span> <span class="toc-text">13. Game Over</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E6%B8%B8%E6%88%8F%E8%83%9C%E5%88%A9"><span class="toc-number">1.15.</span> <span class="toc-text">14. 游戏胜利</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/05/15/unitystu__4%20-%20%E5%89%AF%E6%9C%AC/" title="面谈个人简介">面谈个人简介</a><time datetime="2022-05-15T12:12:02.000Z" title="Created 2022-05-15 20:12:02">2022-05-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/15/GoldFlake_2/" title="GoldFlake：API使用文档"><img src="/true" onerror="this.onerror=null;this.src='https://sm.ms/image/eRux7nWkpUiEcts'" alt="GoldFlake：API使用文档"/></a><div class="content"><a class="title" href="/2022/05/15/GoldFlake_2/" title="GoldFlake：API使用文档">GoldFlake：API使用文档</a><time datetime="2022-05-15T02:10:35.000Z" title="Created 2022-05-15 10:10:35">2022-05-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/12/GoldFlake/" title="GoldFlake：与竞争对手斗智斗勇！金毛突发奇想的非连续时间戳雪花算法版本！"><img src="/true" onerror="this.onerror=null;this.src='https://sm.ms/image/eRux7nWkpUiEcts'" alt="GoldFlake：与竞争对手斗智斗勇！金毛突发奇想的非连续时间戳雪花算法版本！"/></a><div class="content"><a class="title" href="/2022/05/12/GoldFlake/" title="GoldFlake：与竞争对手斗智斗勇！金毛突发奇想的非连续时间戳雪花算法版本！">GoldFlake：与竞争对手斗智斗勇！金毛突发奇想的非连续时间戳雪花算法版本！</a><time datetime="2022-05-11T16:00:35.000Z" title="Created 2022-05-12 00:00:35">2022-05-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/hello-world/" title="Hello World"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='https://sm.ms/image/eRux7nWkpUiEcts'" alt="Hello World"/></a><div class="content"><a class="title" href="/2022/05/10/hello-world/" title="Hello World">Hello World</a><time datetime="2022-05-10T14:22:22.000Z" title="Created 2022-05-10 22:22:22">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/21/redis-study-6/" title="Redis学习笔记（6）：zset类型API大全(Redis 7.0)"><img src="/true" onerror="this.onerror=null;this.src='https://sm.ms/image/eRux7nWkpUiEcts'" alt="Redis学习笔记（6）：zset类型API大全(Redis 7.0)"/></a><div class="content"><a class="title" href="/2022/04/21/redis-study-6/" title="Redis学习笔记（6）：zset类型API大全(Redis 7.0)">Redis学习笔记（6）：zset类型API大全(Redis 7.0)</a><time datetime="2022-04-21T12:00:35.000Z" title="Created 2022-04-21 20:00:35">2022-04-21</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Jiang</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
