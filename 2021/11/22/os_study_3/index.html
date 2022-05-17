@@ -1,0 +1,244 @@
+<!DOCTYPE html><html lang="ch" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>THU《操作系统》学习笔记——原理2： 启动、中断、异常和系统调用 | J's Blog</title><meta name="keywords" content="操作系统,操作系统原理"><meta name="author" content="Jiang"><meta name="copyright" content="Jiang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="THU《操作系统》学习笔记—— 原理2： 启动、中断、异常和系统调用1.系统启动1.1 BIOS&amp;emsp;&amp;emsp;要了解计算机系统的启动过程，首先我们需要了解，计算机在加电后，它是从哪里读取第一条指令的。 &amp;emsp;&amp;emsp;CPU在加电之后，会对CPU里的寄存器做一个初始化，到一个指定的状态，这个时候开始去执行第一条指令。那么这第一条指令在什么地方呢？答">
+<meta property="og:type" content="article">
+<meta property="og:title" content="THU《操作系统》学习笔记——原理2： 启动、中断、异常和系统调用">
+<meta property="og:url" content="http://example.com/2021/11/22/os_study_3/index.html">
+<meta property="og:site_name" content="J&#39;s Blog">
+<meta property="og:description" content="THU《操作系统》学习笔记—— 原理2： 启动、中断、异常和系统调用1.系统启动1.1 BIOS&amp;emsp;&amp;emsp;要了解计算机系统的启动过程，首先我们需要了解，计算机在加电后，它是从哪里读取第一条指令的。 &amp;emsp;&amp;emsp;CPU在加电之后，会对CPU里的寄存器做一个初始化，到一个指定的状态，这个时候开始去执行第一条指令。那么这第一条指令在什么地方呢？答">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/img/AVA.jpg">
+<meta property="article:published_time" content="2021-11-22T03:33:19.000Z">
+<meta property="article:modified_time" content="2022-05-15T13:31:00.788Z">
+<meta property="article:author" content="Jiang">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="操作系统原理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/AVA.jpg"><link rel="shortcut icon" href="/true"><link rel="canonical" href="http://example.com/2021/11/22/os_study_3/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'THU《操作系统》学习笔记——原理2： 启动、中断、异常和系统调用',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-05-15 21:31:00'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/AVA.jpg" onerror="onerror=null;src='/img/AVA.jpg'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/WIF2.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">J's Blog</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">THU《操作系统》学习笔记——原理2： 启动、中断、异常和系统调用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-11-22T03:33:19.000Z" title="Created 2021-11-22 11:33:19">2021-11-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2022-05-15T13:31:00.788Z" title="Updated 2022-05-15 21:31:00">2022-05-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">操作系统学习笔记</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="THU《操作系统》学习笔记——原理2： 启动、中断、异常和系统调用"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="THU《操作系统》学习笔记——-原理2：-启动、中断、异常和系统调用"><a href="#THU《操作系统》学习笔记——-原理2：-启动、中断、异常和系统调用" class="headerlink" title="THU《操作系统》学习笔记—— 原理2： 启动、中断、异常和系统调用"></a>THU《操作系统》学习笔记—— 原理2： 启动、中断、异常和系统调用</h1><h2 id="1-系统启动"><a href="#1-系统启动" class="headerlink" title="1.系统启动"></a>1.系统启动</h2><h3 id="1-1-BIOS"><a href="#1-1-BIOS" class="headerlink" title="1.1 BIOS"></a>1.1 BIOS</h3><p>&amp;emsp;&amp;emsp;要了解计算机系统的启动过程，首先我们需要了解，计算机在加电后，它是从哪里读取第一条指令的。</p>
+<p>&amp;emsp;&amp;emsp;CPU在加电之后，会对CPU里的寄存器做一个初始化，到一个指定的状态，这个时候开始去执行第一条指令。那么这第一条指令在什么地方呢？<strong>答案是在内存里</strong>。</p>
+<p>&amp;emsp;&amp;emsp;内存会分成RAM（随机访问存储器）和ROM（只读存储器）。ROM中信息一旦写入后就固定下来，即使切断电源，信息也不会丢失，所以系统的初始化代码就从ROM开始读取执行。<br><img src="https://i.loli.net/2021/11/22/8lDXiHcpr4sv3Qn.jpg" alt="BIOS在内存中的位置"><br>&amp;emsp;&amp;emsp;在计算机系统加电的时候，在1MB下边有一段，这一段就是BIOS固件。在加电之后计算机跳到BIOS去执行，这个时候就要有一个约定：CPU在初始化完成后，里面的代码段寄存器(CS)和指令指针寄存器(IP)，这两个寄存器的值是多少。因为CS和IP的值决定了CPU从内存当中读取的位置。</p>
+<p>&amp;emsp;&amp;emsp;在CPU初始化完成后，系统处于实模式下，在实模式下它要访问的地址计算为：CS*16+IP。还有一条限制是实模式下，地址总线只有20位可用，我们用的区域就是2^20 Bytes，也就是只有1MB可用，所以BIOS只能放在1MB下的一小块。</p>
+<p>&amp;emsp;&amp;emsp;那么系统初始化的代码为了从磁盘上读数据，这时候必须提供相应的服务，如果没有这些服务是无法访问磁盘设备的。为了做到这件事情，在BIOS里它需要提供以下这些功能：</p>
+<li>基本的输入输出
+<li>系统设置信息
+<li>开机后自检
+<li>系统自启动程序等
+
+<p>&amp;emsp;&amp;emsp;基本的输入输出功能是：完成从磁盘上读数据，从键盘上读取用户的输入，可以在显示器上显示相应的输出。</p>
+<p>&amp;emsp;&amp;emsp;系统设置信息的作用：系统是通过硬盘启动、网络启动还是光盘启动，那么这些启动方式是在加电后由BIOS里的系统设置信息来完成的，依据这些设置系统执行它的启动程序。</p>
+<p>&amp;emsp;&amp;emsp;比如从硬盘把加载程序和操作系统内容加载到系统中来。具体的过程可以这样来看：<br><img src="https://i.loli.net/2021/11/22/Un2SA4msXi3HjGQ.jpg"><br>&amp;emsp;&amp;emsp;在BIOS初始化完成之后，它就会从磁盘上读引导扇区。这个引导扇区长度只有512字节，BIOS程序不允许读更多的内容（被限制）。读进来放到指定的地址，然后跳转到它的地址，也就是0x7c00。这个时候就把控制权转到从磁盘上读进来的程序，在这里也就是加载程序。在加载程序里又可以做进一步的事情，它能将操作系统的代码读到内存里，并且能把控制权交给操作系统。</p>
+<p>&amp;emsp;&amp;emsp;这个时候有个问题说，既然能从磁盘上读数据，那为什么不在BIOS里就直接将操作系统的内核镜像读进来呢？实际上这时候它是有一些问题的。首先磁盘上是有文件系统的，文件系统是多种多样的，厂家在出厂时不可能说限制死了只能使用一种文件系统，这是为了增加灵活性。那么BIOS又不可能加上认识所有文件系统的代码，怎么办呢？在这里就有一个基本约定：BIOS不需要认识磁盘上文件系统的格式，也能从磁盘里读到第一块。读了第一块之后，再去用这块里的加载程序识别磁盘的文件系统。在认识文件系统之后，就可以从磁盘上读操作系统内核镜像了，接着再把它加载到内存中来。这就是我们在上图看到的用加载程序读操作系统的过程。有了这个过程之后，再把控制权转交给读进来的操作系统内核的代码上，操作系统就可以开始运行了。</p>
+<p>&amp;emsp;&amp;emsp;BIOS还提供了一些输入输出功能，但是它只能提供最简单最基本的输入输出功能，并且它的使用受到了很大限制。比如Intel处理器上，它受到的一条限制就是只能在实模式下访问，那么如果操作系统是工作在保护模式下，那这些功能就不可以用了。<br><img src="https://i.loli.net/2021/11/22/N9gqzk3PyradtT8.jpg" alt="BIOS基本I/O功能"></p>
+<hr>
+<h3 id="1-2-系统启动流程"><a href="#1-2-系统启动流程" class="headerlink" title="1.2 系统启动流程"></a>1.2 系统启动流程</h3><p>&amp;emsp;&amp;emsp;刚刚介绍了计算机刚启动的时候，从什么地方去读第一条指令，从磁盘上的什么地方去读第一块数据。接下来呢，我们会把刚刚介绍的这些过程做进一步的细化，也就是系统启动的流程。</p>
+<p>&amp;emsp;&amp;emsp;按照之前介绍的流程，应该是说计算机加电之后去读BIOS，BIOS读加载程序，加载程序去读内核映像，这个过程其实可以细化下去。</p>
+<p>&amp;emsp;&amp;emsp;我们之前说BIOS启动后，它会去读Bootloader（加载程序），这个过程实际上不能直接进行。比如说在最早的时候磁盘只有一个分区，BIOS可以直接到分区里找文件系统，但是现在大部分计算机都不止一个分区。可能会有几个分区，每个分区装上不同的文件系统，那这个时候就需要磁盘上的主引导记录(MBR)，这个主引导记录是说BIOS该从哪个分区读取加载程序。有了主引导记录之后呢，BIOS就可以进到可引导的“活动”分区(活动分区是计算机启动分区，操作系统的启动文件都装在这个分区)。分区里又有一个引导扇区，通过引导扇区读取文件系统的加载程序。<br><img src="https://i.loli.net/2021/11/22/wJLV1NDUG2r6MoP.jpg" alt="计算机启动流程示意图"><br>&amp;emsp;&amp;emsp;我们刚才说BIOS是从磁盘里读取加载程序，实际上它在这之前还有自己的事情要做，也就是BIOS的初始化。</p>
+<p>&amp;emsp;&amp;emsp;首先第一个是执行硬件自检程序(POST)。也就是有可能计算机加电起来之后，如果内存出错，那么后边的工作就没法继续。如果内存出错了，显示器是没法工作的，那么我们又怎么知道它出问题了？其实计算机的加电自检，它上来是先看看关键的几个硬件是不是在工作，也就是要知道关键的内存、显卡等几个硬件是否存在，存在的话它的工作状态是什么样。这些关键的接口卡里自己也有初始化程序，这些初始化程序完成之后，就说明这些硬件是正常的了，之后再来执行系统BIOS的初始化。</p>
+<p>&amp;emsp;&amp;emsp;BIOS的初始化又干了什么事呢？现在很多的系统都是可以即插即用的，那如果我想从一个USB接口的光驱里启动，怎么启动得来呢？那么BIOS里的自检现在是能够做到系统的自检，检测并且配置这些即插即用设备，这些工作做完之后，就可以知道现在的系统里都连了哪些硬件。在BIOS里有一个系统配置表，也就是用来告诉我们系统里连接了哪些硬件用的。</p>
+<p>&amp;emsp;&amp;emsp;ESCD，即扩展系统配置数据。这个数据记录当前系统里都连了哪些设备，每次加电之后有可能会插上新的卡，或者拔掉已有的卡，这个数据是会变的，所以每次加电之后都必须做更新。做完之后就把控制权转到从外部读进来的代码里，那这就是按BIOS里指定的顺序，从软盘、硬盘、光盘或者指定的其他设备上读进第一块扇区。<br><img src="https://i.loli.net/2021/11/22/FUACJWn3vatLmuN.jpg" alt="BIOS初始化过程"></p>
+<p>&amp;emsp;&amp;emsp;读进来第一块扇区之后，假如磁盘有多个分区，那这个时候就有一个主引导记录(MBR)，接下来我们需要了解主引导记录的格式。首先第一块扇区有512个字节，但是主引导记录中的启动代码只能用到的是446字节，因为我们还需要知道有多个分区的时候，这些分区的状态是什么样的。所以硬盘分区表也一共占了64个空间，每一个分区表是16字节，主引导记录格式最多只能支持4个分区。最后结束标志占了2个字节，签名为0x55 0xAA。</p>
+<p>&amp;emsp;&amp;emsp;启动代码需要做的事是：检查分区表是否正确，如果分区表是错的，那么程序是没法加载的。如果正确，还要加载并跳转到活动分区的引导扇区上去。在这之前还要检查主引导记录的结束标志(55AA),有了这个才说明是一个合法的主引导记录，才会跳到活动分区的引导扇区上去。</p>
+<p><img src="https://i.loli.net/2021/11/22/xvFegyqXAYSE4b2.jpg" alt="MBR格式"><br>&amp;emsp;&amp;emsp;分区的引导扇区的格式也是需要了解的。在这里开始就有文件卷的信息(文件系统描述信息)，也有和主引导记录一样的结束标志(55AA)。在这个基础上，前边它还有跳转指令，这里的跳转指令和平台相关，CPU不同这条指令也是不同的。剩下还有一块在结束标志前的区域是启动代码，通过跳转指令跳转到启动代码。这个启动代码是用来寻找并跳转到加载程序的，加载程序不是存在这个512字节的引导扇区里的，而是存在磁盘上的某处。这里的启动代码我们是保存在磁盘上的，它是可以改动的，所以可以把加载程序放在活动分区里任意的地方，只要启动代码标识了加载程序的位置的就可以。<br><img src="https://i.loli.net/2021/11/23/HYueEtock6xKN9D.jpg" alt="分区引导扇区(PBR)格式"></p>
+<p>&amp;emsp;&amp;emsp;接下来再说说加载程序(Bootloader)的细化:</p>
+<p>&amp;emsp;&amp;emsp;加载程序不是直接加载操作系统的内核，加载程序现在是能认识文件系统的格式的，它是先去文件系统里去读启动配置信息，这个启动配置信息在不同的操作系统中是不同的。依据这个选择启动的参数，比如选择正常启动、安全模式启动，还是在调试状态下启动系统。这些启动的区别读出来之后，它会导致在加载内核时有些内核会不一样，或者是加载的参数会不一样。依据配置去加载内核，最后跳转并转交控制权给内核，操作系统就启动起来了。<br><img src="https://i.loli.net/2021/11/23/EqQ9bCowrBAcZyR.jpg" alt="加载程序启动内核过程"><br>&amp;emsp;&amp;emsp;说到这里就大概描述清楚了操作系统的启动流程，但是这些足够详细吗？知道这些足够写出实际程序吗？答案是并不能，这里的介绍仍然是粗略的。如果说要写实际程序，我们要去了解相关硬件平台上的CPU的手册，比如它在加电后处于什么样的状态，还有BIOS里的规范，它去磁盘上的哪里读第一块扇区，格式是什么样的。到通过加载程序加载操作系统内核的过程时，还需要知道内核编译时它的相应一些信息。</p>
+<p>&amp;emsp;&amp;emsp;在计算机启动过程中，有很多需要考虑的因素。那么这些考虑的因素又有很多细节，和我们实际的硬件环境密切相关。是不是要在每一种硬件平台上都要制定一种启动流程呢？实际上不是这样的。在工业界制定了一组相应的标准。</p>
+<p>&amp;emsp;&amp;emsp;BIOS就是我们现在广泛使用的在PC机上的启动流程标准。BIOS是固化在主板上的程序，它可以完成系统的启动。它最早出现的时候是70年代后期，这么多年它已经得到了许多的发展，以下列出三种它的变化：</p>
+<li>BIOS-MBR
+
+<p>&amp;emsp;&amp;emsp;这也就是之前说到的主引导记录。在多分区磁盘出来之后，就相当于一个系统有多个磁盘，多个分区，这时候就需要选择从哪个分区启动。由于这种需求，就在磁盘加了一个主引导记录。所以BIOS-MBR也随之出现了。</p>
+<li>BIOS-GPT
+
+<p>&amp;emsp;&amp;emsp;MBR因为分区表只占64个字节，最多只能有4个分区，而我们现在用到的计算机很多都会大于4个分区，这时候为了解决这个问题就有了GPT，全局唯一标识分区表，英文名为GUID Partition Table(简称GPT。使用GUID分区表的磁盘称为GPT磁盘，比如博主的就是GPT硬盘)。与普遍使用的主引导记录(MBR)分区方案相比，GPT提供了更加灵活的磁盘分区机制。它具有如下优点：</p>
+<p>&amp;emsp;&amp;emsp;1、支持2TB以上的大硬盘。</p>
+<p>&amp;emsp;&amp;emsp;2、每个磁盘的分区个数几乎没有限制。为什么说“几乎”呢？是因为Windows系统最多只允许划分128个分区。不过也完全够用了。</p>
+<p>&amp;emsp;&amp;emsp;3、分区大小几乎没有限制。又是一个“几乎”。因为它用64位的整数表示扇区号。夸张一点说，一个64位整数能代表的分区大小已经是个“天文数字”了，若干年内你都无法见到这样大小的硬盘，更不用说分区了。</p>
+<p>&amp;emsp;&amp;emsp;4、分区表自带备份。在磁盘的首尾部分分别保存了一份相同的分区表。其中一份被破坏后，可以通过另一份恢复。</p>
+<p>&amp;emsp;&amp;emsp;5、每个分区可以有一个名称(不同于卷标)。</p>
+<li>PXE
+
+<p>&amp;emsp;&amp;emsp;PXE是网络启动的一个标准。也就是计算机起来之后，通过局域网或者是其他的网络，连到服务器上，并从服务器上下载内核镜像来执行，这是PXE的标准。如果要通过网络启动，BIOS里就要增加网络协议栈，从这个角度来讲的话，BIOS的功能也会越做越复杂，甚至可以算上是小的操作系统了。</p>
+<p>&amp;emsp;&amp;emsp;在BIOS的变化当中，我们注意到BIOS可以有一些局部的修改，来完善对后续的支持，但这种支持总是会受到前边的制约。正是由于这种原因，又有了一种新的启动规范，就是UEFI：统一可扩展固件接口。这个接口它想达到的目标是在所有平台上一致地提供操作系统的启动服务。UEFI接口标准从90年代就开始推出它的第一个版本，一直到现在都在不断演变的过程当中。那么UEFI会增加什么呢？举一个例子：如果我想通过磁盘启动，只要我能拿到一张新的磁盘接入机器里，这台机器剩下的事情我都可以控制了。那这样的系统，对于一些关键性的服务器允许这样做是危险的。针对这种危险，在UEFI接口规范里，就定义一个可信启动流程。这个流程大致是：在BIOS启动之后，它在读磁盘上的引导记录时，它是会对引导记录的可信性进行一个检查，也就是说它会让引导记录里有个签名，只有签名正确的这些引导记录才会读进来，之后才会把控制权交给你。这使得整个启动过程当中，可信的介质上的这些代码才可以在系统中运行，从而减少了风险。<br><img src="https://i.loli.net/2021/11/23/8fwhlO3AVq4v5zN.jpg" alt="系统启动规范"></p>
+<hr>
+<h2 id="2-中断、异常和系统调用"><a href="#2-中断、异常和系统调用" class="headerlink" title="2. 中断、异常和系统调用"></a>2. 中断、异常和系统调用</h2><h3 id="2-1-为什么需要中断、异常和系统调用"><a href="#2-1-为什么需要中断、异常和系统调用" class="headerlink" title="2.1 为什么需要中断、异常和系统调用"></a>2.1 为什么需要中断、异常和系统调用</h3><p>&amp;emsp;&amp;emsp;我们之前说到的操作系统启动流程这一阶段是可信任的，但是在操作系统之上还有很多应用程序，这些应用程序我们没有办法对他们做到完全的信任，而这些应用程序又要使用内核提供的服务，这时就要解决操作系统内核和外界打交道的问题。那么操作系统内核是可以信任的，内核可以做对计算机系统任何内容的控制，可以执行它的特权指令，这种信任并不是它跟外界完全的隔离，它还需要为上边的应用程序提供服务。也就是信任的内核必须对外界提供某种访问的接口，或者说打交道的通道。</p>
+<p>&amp;emsp;&amp;emsp;然后除了会涉及跟应用程序打交道之外，在程序或者计算机系统运行过程中还会有各种各样的问题。比如说在外设方面，跟计算机进行交互的时候敲键盘，系统并不能确认准确的一个时间点你会敲下键盘。敲了键盘之后，如果系统在做别的事情，这时系统没办法给你做出相应，那样的话可能会让你觉得这个操作系统很不好用。为了让计算机能够及时地对外界作出适当反应，我们需要提出中断机制。也就是说当外设与系统有交互的时候，系统需要怎么处理。还有一种情况是应用程序在执行过程中发生了意想不到的错误，比如说做除法除了零，这是要出问题的。但是是否会除零呢，只有当执行到那一步的时候才能知道，那么这个时候再知道的话，已经没办法往下做了。所以总会有一些意外情况，在事先写程序的时候是没法预料的，对于这种意外情况，系统怎么来处理。通常做法是应用程序发生意外情况，就把控制权转给操作系统，由操作系统来处理它。这就是由异常来做处理。</p>
+<p>&amp;emsp;&amp;emsp;还有一种情况是如何让用户程序能够获得系统的服务。比如银行对外提供服务，银行为了保证安全所以它有很多防护，这个防护又和对外提供服务是有矛盾的。为了方便用户使用银行的服务，银行必须提供灵活的访问接口，但是这种灵活的接口又不能影响到银行的安全。操作系统内核也是一样，我们需要系统调用来提供一个接口，让应用程序既方便的使用内核提供的服务，又不至于用户的行为对内核安全产生影响。<br><img src="https://i.loli.net/2021/11/23/uBjhAlCS3xItX7r.jpg" alt="背景"></p>
+<hr>
+<h3 id="2-2-中断、异常和系统调用"><a href="#2-2-中断、异常和系统调用" class="headerlink" title="2.2 中断、异常和系统调用"></a>2.2 中断、异常和系统调用</h3><p>&amp;emsp;&amp;emsp;有了上面的这些问题，我们用下面的图来看一下内核和外界打交道的地方：<br><img src="https://i.loli.net/2021/11/23/ZkWXLRlyosvuEzM.jpg"><br>&amp;emsp;&amp;emsp;中间这是内核，然后在内核里面提供了一些内核服务，这些内核服务首先会是说和外界硬件打交道。比如我敲了键盘，那我在敲下一个键的时候，可能内核里面会有一个缓冲区，缓冲区的大小是有限制的，存多了，就会有内容丢失。那么在这里如果有输入数据之后，就必须告诉操作系统及时把输入数据读走，否则的话后面来的数据就会丢了。那么外设和内核之间有一条通道(图中)，这就是中断。中断会通知内核，内核通过驱动来与外设进行数据的交互，比如说键盘的数据是读入，磁盘的话是有读有写。</p>
+<p>&amp;emsp;&amp;emsp;还有一种情况是在应用程序执行的过程当中，执行到某个位置时，比如说某条指令做除法，除了个零，或者一条存储访问指令，请求访问一个存储单元，但这个存储单元是不允许访问的。对于这种情况，操作系统会提供一个异常机制，我们把这些都认为是代码执行过程中的出错。出现异常的时候，我们把控制权交给内核，内核可能做出的处理有两种：(1)解决应用程序出现的问题，让程序可以继续执行。(2)杀死应用程序，把应用程序所占用的资源还给操作系统。</p>
+<p>&amp;emsp;&amp;emsp;最主要的一类还是正常情况下的使用，应用程序会使用函数库，这时候和内核不打交道，但是内核、应用程序或函数库，会间接的通过系统调用接口，使用到操作系统内核的服务。比如应用程序要读写文件，那应用程序不能直接访问磁盘设备，操作系统提供了一个磁盘读写的系统调用接口，应用程序调用这个读写接口所提供的这个函数，这时候内核把相应的数据读出来，还给应用程序，这个流程就结束了。</p>
+<p>&amp;emsp;&amp;emsp;所以到这里我们可以看到，操作系统内核和外界打交道基本上就是中断、异常和系统调用这三个接口。接下来说一说这三个接口的定义。</p>
+<li>系统调用(system call)
+
+<p>&amp;emsp;&amp;emsp;系统调用是应用程序主动向操作系统发出的服务请求。</p>
+<li>异常(exception)
+
+<p>&amp;emsp;&amp;emsp;异常是非法指令或其他原因导致的指令执行失败后的处理请求。</p>
+<p>&amp;emsp;&amp;emsp;这种处理请求，可能是终止程序，也可能会是解决程序遇到的问题，然后重新执行指令。</p>
+<li>中断(hardware interrupt)
+
+<p>&amp;emsp;&amp;emsp;中断是硬件设备对操作系统提出的处理请求。</p>
+<p>&amp;emsp;&amp;emsp;比如说缓冲区里有数据，需要内核把它读走。或者缓冲区里的数据已经全部用完，需要内核补充新数据。</p>
+<p>&amp;emsp;&amp;emsp;(关于中断向量表和系统调用表的百度百科介绍：)</p>
+<p>&amp;emsp;&amp;emsp;中断向量表：是指中断服务程序入口地址的偏移量与段基址，一个中断向量占据4字节空间。中断向量表是8086系统内存中最低端1K字节空间，它的作用就是按照中断类型号从小到大的顺序存储对应的中断向量，总共存储256个中断向量。在中断响应过程中，CPU通过从接口电路获取的中断类型号（中断向量号）计算对应中断向量在表中的位置，并从中断向量表中获取中断向量，将程序流程转向中断服务程序的入口地址。(中断向量：中断服务程序的入口地址。)</p>
+<p>&amp;emsp;&amp;emsp;系统调用表：是一张由指向实现各种系统调用的内核函数的函数指针组成的表，该表可以基于系统调用编号进行索引，来定位函数地址，完成系统调用。</p>
+<hr>
+<h3 id="2-3-中断、异常和系统调用比较"><a href="#2-3-中断、异常和系统调用比较" class="headerlink" title="2.3 中断、异常和系统调用比较"></a>2.3 中断、异常和系统调用比较</h3><p>&amp;emsp;&amp;emsp;我们可以从以下图中的三点，源头、响应方式和处理机制来区别中断、异常和系统调用：<br><img src="https://i.loli.net/2021/11/23/5wZS9gqoKWOeBhp.jpg" alt="中断、异常和系统调用比较"><br>&amp;emsp;&amp;emsp;对于源头，异常在这个图中的描述是适宜性的，在执行内核代码的时候也有可能由于代码的执行出现问题，所以也有可能是内部出现的。</p>
+<p>&amp;emsp;&amp;emsp;对于响应机制，中断它是异步的，也就是应用程序该怎么做处理就怎么做处理，它不会感知到中断的存在，中断只是在应用程序暂停执行，内核处理完中断所需要的服务之后，继续恢复应用程序的执行。而异常是跟当前指令有关的，这个是同步的，所以必须先处理完当前这条引发异常的指令所导致的问题，程序才可以继续下去。系统调用通常情况下会是同步的或者异步的，同步就是应用程序发出系统调用请求之后，就进入等待了，一直到内核处理完之后返回给它结果。也可能是异步的，系统调用请求发出之后，内核在处理的过程当中，应用程序就切换过去干别的事去了，等到内核返回结果之后，应用程序就会继续执行。</p>
+<p>&amp;emsp;&amp;emsp;对于它们的处理，会都在内核里来执行，但它们的处理也会有一些区别。中断会持续地进行，而系统调用它会是用户提出之后处理，等待然后再继续，而异常是会处理当前所出现地问题。</p>
+<hr>
+<h3 id="2-4-中断的处理机制"><a href="#2-4-中断的处理机制" class="headerlink" title="2.4 中断的处理机制"></a>2.4 中断的处理机制</h3><p>&amp;emsp;&amp;emsp;这里的中断，实际上是指中断、异常和系统调用三种情况的总称。对于硬件上的处理，CPU有一项工作——要对中断使能。也就是说在许可外界打扰CPU的执行之前，CPU是不会对外界的任何中断请求做出响应的，只有CPU把相应的工作做完，外界来一个请求之后它知道该怎么处理了，它才会允许做这种处理。否则给CPU一个中断请求，它也不知道怎么办。所以在CPU初始化之后，它有一个中断使能，使能之后(CPU设置使能中断标志)它才可以进行中断处理。</p>
+<p>&amp;emsp;&amp;emsp;中断事件产生了之后通常是一个电平的上升沿，或者说是一个高电平，那CPU会记录下这件事。也就是有一个中断标志，表示出现了一个中断。然后这时候需要知道中断是怎么样产生的，也就是需要知道中断源编号，这一部分工作是由硬件来做的。硬件做完这一部分工作之后，剩下的事情就由内核的软件来做。</p>
+<p>&amp;emsp;&amp;emsp;中断、异常和系统调用的请求都首先进到了中断向量表。中断向量如果是中断，那它直接跳到中断服务例程来做出响应；如果是异常，则直接跳到异常服务例程来做处理；如果是系统调用，由于系统调用的量很大，系统调用总共占用一个中断编号，然后不同的系统调用的功能是由系统调用表表示的，在这根据在系统调用里的功能的选择不同，去选择不同的系统调用实现。</p>
+<p>&amp;emsp;&amp;emsp;在这些过程里为了不影响程序的正常运行，需要有保护现场和恢复现场。而在系统调用过程中，还需要知道系统调用之前程序的上下文信息，比如说应用程序想让内核干什么。那保护和恢复现场的工作呢，是会和编译器有关系。保护现场之后还有中断服务处理，那这是操作系统来做的。如果是中断请求的话，还需要清除中断标志，这是由中断服务例程来做的。</p>
+<p>&amp;emsp;&amp;emsp;我们说中断可以满足应用程序，外部设备或者程序执行异常的这种服务请求，那这时可能会出现一种情况，就是内核正在处理一个请求的时候，又来了一个请求该怎么办。在操作系统里，硬件中断服务例程是允许被打断的。也就是说正在处理一个中断的时候，可以允许再出现其他中断。如果两个中断源不同，那么可以根据两个优先级的高低，让低的往后排或者说暂停下来，使得内核可以交替做中断处理。然后对于中断服务例程，并不是说任何一个时刻都可以做任何一个处理，它会在一定的时间里禁止中断请求。比如说电源出问题，那可能其他的问题就变得不重要了，所以就会中断其他的中断处理请求，然后中断服务请求会一直保持到CPU做出响应。</p>
+<p>&amp;emsp;&amp;emsp;对于异常它也可以被打断，比如说程序执行当中出现了异常，而正在做别的异常处理。比如虚拟存储里访问到的存储单元不存在，它正在从硬盘上导入数据进来，而导入的过程中会用到磁盘I&#x2F;O，这时候也会有磁盘设备的中断，是可以允许它做异常嵌套的。</p>
+<hr>
+<h2 id="3-系统调用"><a href="#3-系统调用" class="headerlink" title="3. 系统调用"></a>3. 系统调用</h2><h3 id="3-1-系统调用"><a href="#3-1-系统调用" class="headerlink" title="3.1 系统调用"></a>3.1 系统调用</h3><p>&amp;emsp;&amp;emsp;系统调用是提供操作系统服务的编程接口，通常情况下是用C&#x2F;C++编写，程序通常不是直接去使用系统调用，而是把系统调用封装到一个库里，比如说像标准C库，程序访问这些库里的库函数来间接访问系统调用。</p>
+<p>三种常见的应用程序编程接口：</p>
+<li>Win32 API 用于 Windows
+<li>POSIX API 用于 POSIX-based-systems（包括UNIX，LINUX，MAC OS X的所有版本）
+<li>Java API 用于Java虚拟机(JVM)
+
+<hr>
+<h3 id="3-2-系统调用的实现"><a href="#3-2-系统调用的实现" class="headerlink" title="3.2 系统调用的实现"></a>3.2 系统调用的实现</h3><p>&amp;emsp;&amp;emsp;每一个系统调用都有一个系统调用编号，不同的编号对应不同的系统调用功能。系统调用时从系统调用入口，通过软中断进到系统内核来，它首先体现为一个中断，通过中断向量表跳到系统调用表来，根据系统调用编号来选取系统调用的功能实现，得到系统调用的结果后返回给应用程序。</p>
+<p>&amp;emsp;&amp;emsp;（对于用户来说不需要了解系统调用的实现，但是要把它所需要的服务告诉内核，也就是需要准备参数）<br><img src="https://i.loli.net/2021/11/24/du29hAFRzoviMyE.jpg" alt="系统调用实现"></p>
+<hr>
+<h3 id="3-3-函数调用和系统调用的不同处"><a href="#3-3-函数调用和系统调用的不同处" class="headerlink" title="3.3 函数调用和系统调用的不同处"></a>3.3 函数调用和系统调用的不同处</h3><p>&amp;emsp;&amp;emsp;对于所使用的指令来讲，系统调用使用的是INT和IRET，而函数调用使用的是CALL和RET。这四条指令在指令级上是完全不同的。<br><img src="https://i.loli.net/2021/11/24/e5UbYs2Zqv8og6B.jpg" alt="函数调用和系统调用不同处"><br>&amp;emsp;&amp;emsp;那么它们的区别在哪呢？先说函数调用，为了调用一个函数，需要把参数压到堆栈里，然后转到相应函数去执行，执行的时候从堆栈获取参数信息，返回的结果也放在堆栈里返回回来。这样在上边的函数里就知道所调用函数的返回结果。而对于系统调用来讲，它由于内核是受保护的，而应用程序是它自己的区域(用户态)，在这为了保护内核的实现，在这里内核态和用户态使用不同的堆栈，所以在这会有一个堆栈的切换。切换之后，由于CPU处于内核态，就可以使用特权指令，那么就可以直接对设备进行控制，而在用户态是不可以进行的。就比如金毛到银行取钱，这个取钱的操作到银行的内部，银行的人员可以直接去打开保险柜取出金毛需要的钱，并且在金毛的账户上做记录，这些记录银行记录到自己内部的“堆栈”上。如果用同一个堆栈会发生什么问题？用户的代码可以改动堆栈的信息，那么这对于系统来说是不安全的。好比说金毛到银行取钱，结果账户金额未减少，这银行不干。或者反过来说金毛把钱存到银行里，账户的钱一分没加，那金毛是不干的。基于这种理由呢，所以堆栈会有相应的切换，银行可以做特权的操作。</p>
+<hr>
+<h3 id="3-4-系统调用的开销"><a href="#3-4-系统调用的开销" class="headerlink" title="3.4 系统调用的开销"></a>3.4 系统调用的开销</h3><p>&amp;emsp;&amp;emsp;系统调用比函数调用来说更安全，但是它的开销会更大。主要原因是有用户态到内核态的切换。具体有哪些开销呢？<br><img src="https://i.loli.net/2021/11/24/K2umzfE5GNyLDAd.jpg" alt="系统调用开销"><br>&amp;emsp;&amp;emsp;首先，有一个切换内核态和用户态的引导，这是硬件上要做的事。再有一个是在内核当中有个堆栈，如果是第一次调用，这时要有内核堆栈的建立。传参数的时候，参数的合法性是需要验证的。切换到内核执行的时候，由于访问的代码有切换，那在这种情况下，内核需要访问到用户的一些信息，这时会做地址空间上的映射，这些映射会导致缓存有变化，那么这时TLB(页表缓存)的内容也会失效。所有的这些都会导致用户态和内核态切换的时候，系统调用的开销是要大于函数调用的。</p>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&amp;emsp;&amp;emsp;这一章花了比较长的一些时间来理解启动流程、中断、异常和系统调用的概念，也通过百度和咨询了不少大佬们才感觉差不多了解了的。感觉这篇写的可能不是很清楚，因为自己写的时候也感觉有些迷糊，写原理的文章也都是在做相关的实验前写的，感觉还是得做过实验后才能更好地了解这方面的内容鸭。算了，继续加油叭！🍭🍭🍭</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">Jiang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2021/11/22/os_study_3/">http://example.com/2021/11/22/os_study_3/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a><a class="post-meta__tags" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/">操作系统原理</a></div><div class="post_share"><div class="social-share" data-image="/img/AVA.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/11/30/os_study_4/"><img class="prev-cover" src="/img/WIF2.png" onerror="onerror=null;src='/img/AVA.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">THU《操作系统》学习笔记——实验一：bootloader启动ucoreos</div></div></a></div><div class="next-post pull-right"><a href="/2021/11/21/os_study_2/"><img class="next-cover" src="/img/WIF2.png" onerror="onerror=null;src='/img/AVA.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">THU《操作系统》学习笔记——实验0 操作系统实验环境准备和x86-32硬件介绍</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2021/11/19/os_study_1/" title="THU《操作系统》学习笔记——原理1：操作系统概述"><img class="cover" src="/img/WIF2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-19</div><div class="title">THU《操作系统》学习笔记——原理1：操作系统概述</div></div></a></div><div><a href="/2022/03/27/os_study_6/" title="THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配"><img class="cover" src="/img/WIF2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-03-27</div><div class="title">THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配</div></div></a></div><div><a href="/2022/03/20/os_study_5/" title="THU《操作系统》学习笔记——原理3：物理内存管理：连续内存分配"><img class="cover" src="/img/WIF2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-03-20</div><div class="title">THU《操作系统》学习笔记——原理3：物理内存管理：连续内存分配</div></div></a></div><div><a href="/2021/11/21/os_study_2/" title="THU《操作系统》学习笔记——实验0 操作系统实验环境准备和x86-32硬件介绍"><img class="cover" src="/img/WIF2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-21</div><div class="title">THU《操作系统》学习笔记——实验0 操作系统实验环境准备和x86-32硬件介绍</div></div></a></div><div><a href="/2021/11/30/os_study_4/" title="THU《操作系统》学习笔记——实验一：bootloader启动ucoreos"><img class="cover" src="/img/WIF2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-30</div><div class="title">THU《操作系统》学习笔记——实验一：bootloader启动ucoreos</div></div></a></div><div><a href="/2022/04/16/os_study_7/" title="THU《操作系统》学习笔记——实验2：物理内存管理"><img class="cover" src="/true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-16</div><div class="title">THU《操作系统》学习笔记——实验2：物理内存管理</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/AVA.jpg" onerror="this.onerror=null;this.src='/img/AVA.jpg'" alt="avatar"/></div><div class="author-info__name">Jiang</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#THU%E3%80%8A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94-%E5%8E%9F%E7%90%862%EF%BC%9A-%E5%90%AF%E5%8A%A8%E3%80%81%E4%B8%AD%E6%96%AD%E3%80%81%E5%BC%82%E5%B8%B8%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">THU《操作系统》学习笔记—— 原理2： 启动、中断、异常和系统调用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8"><span class="toc-number">1.1.</span> <span class="toc-text">1.系统启动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-BIOS"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 BIOS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 系统启动流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%AD%E6%96%AD%E3%80%81%E5%BC%82%E5%B8%B8%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">1.2.</span> <span class="toc-text">2. 中断、异常和系统调用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E4%B8%AD%E6%96%AD%E3%80%81%E5%BC%82%E5%B8%B8%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1 为什么需要中断、异常和系统调用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E4%B8%AD%E6%96%AD%E3%80%81%E5%BC%82%E5%B8%B8%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2 中断、异常和系统调用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E4%B8%AD%E6%96%AD%E3%80%81%E5%BC%82%E5%B8%B8%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E6%AF%94%E8%BE%83"><span class="toc-number">1.2.3.</span> <span class="toc-text">2.3 中断、异常和系统调用比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E4%B8%AD%E6%96%AD%E7%9A%84%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6"><span class="toc-number">1.2.4.</span> <span class="toc-text">2.4 中断的处理机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">1.3.</span> <span class="toc-text">3. 系统调用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1 系统调用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2 系统调用的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E7%9A%84%E4%B8%8D%E5%90%8C%E5%A4%84"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3 函数调用和系统调用的不同处</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E7%9A%84%E5%BC%80%E9%94%80"><span class="toc-number">1.3.4.</span> <span class="toc-text">3.4 系统调用的开销</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.4.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/05/15/unitystu__4%20-%20%E5%89%AF%E6%9C%AC/" title="面谈个人简介">面谈个人简介</a><time datetime="2022-05-15T12:12:02.000Z" title="Created 2022-05-15 20:12:02">2022-05-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/05/15/GoldFlake_2/" title="GoldFlake：API使用文档">GoldFlake：API使用文档</a><time datetime="2022-05-15T02:10:35.000Z" title="Created 2022-05-15 10:10:35">2022-05-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/05/12/GoldFlake/" title="GoldFlake：与竞争对手斗智斗勇！突发奇想的非连续时间戳雪花算法版本！">GoldFlake：与竞争对手斗智斗勇！突发奇想的非连续时间戳雪花算法版本！</a><time datetime="2022-05-11T16:00:35.000Z" title="Created 2022-05-12 00:00:35">2022-05-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/04/21/redis-study-6/" title="Redis学习笔记（6）：zset类型API大全(Redis 7.0)">Redis学习笔记（6）：zset类型API大全(Redis 7.0)</a><time datetime="2022-04-21T12:00:35.000Z" title="Created 2022-04-21 20:00:35">2022-04-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/04/16/os_study_7/" title="THU《操作系统》学习笔记——实验2：物理内存管理">THU《操作系统》学习笔记——实验2：物理内存管理</a><time datetime="2022-04-16T09:12:31.000Z" title="Created 2022-04-16 17:12:31">2022-04-16</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Jiang</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

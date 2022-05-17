@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="ch" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配 | J's Blog</title><meta name="keywords" content="操作系统,操作系统原理"><meta name="author" content="Jiang"><meta name="copyright" content="Jiang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配1. 非连续内存分配的需求背景 1.1 非连续内存分配的设计目标连续分配的缺点： &amp;emsp;&amp;emsp;（1）分配给程序的物理内存必须连续。 &amp;emsp;&amp;emsp;（2）存在内碎片和外碎片。 &amp;emsp;&amp;emsp;（3）内存分配的动态修改困难。（如果说一个程序在执行的过程当中他需求的内存空间大小又有变化，这种变化就导致连续分配">
+<meta property="og:type" content="article">
+<meta property="og:title" content="THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配">
+<meta property="og:url" content="http://example.com/2022/03/27/os_study_6/index.html">
+<meta property="og:site_name" content="J&#39;s Blog">
+<meta property="og:description" content="THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配1. 非连续内存分配的需求背景 1.1 非连续内存分配的设计目标连续分配的缺点： &amp;emsp;&amp;emsp;（1）分配给程序的物理内存必须连续。 &amp;emsp;&amp;emsp;（2）存在内碎片和外碎片。 &amp;emsp;&amp;emsp;（3）内存分配的动态修改困难。（如果说一个程序在执行的过程当中他需求的内存空间大小又有变化，这种变化就导致连续分配">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/img/AVA.jpg">
+<meta property="article:published_time" content="2022-03-26T17:12:31.000Z">
+<meta property="article:modified_time" content="2022-05-15T13:32:11.498Z">
+<meta property="article:author" content="Jiang">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="操作系统原理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/AVA.jpg"><link rel="shortcut icon" href="/true"><link rel="canonical" href="http://example.com/2022/03/27/os_study_6/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-05-15 21:32:11'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/AVA.jpg" onerror="onerror=null;src='/img/AVA.jpg'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/WIF2.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">J's Blog</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-03-26T17:12:31.000Z" title="Created 2022-03-27 01:12:31">2022-03-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2022-05-15T13:32:11.498Z" title="Updated 2022-05-15 21:32:11">2022-05-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">操作系统学习笔记</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配"><a href="#THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配" class="headerlink" title="THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配"></a>THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配</h1><h2 id="1-非连续内存分配的需求背景"><a href="#1-非连续内存分配的需求背景" class="headerlink" title="1. 非连续内存分配的需求背景"></a>1. 非连续内存分配的需求背景</h2><hr>
+<h3 id="1-1-非连续内存分配的设计目标"><a href="#1-1-非连续内存分配的设计目标" class="headerlink" title="1.1 非连续内存分配的设计目标"></a>1.1 非连续内存分配的设计目标</h3><li>连续分配的缺点：<p></p>
+&emsp;&emsp;（1）分配给程序的物理内存必须连续。<p></p>
+&emsp;&emsp;（2）存在内碎片和外碎片。<p></p>
+&emsp;&emsp;（3）内存分配的动态修改困难。（如果说一个程序在执行的过程当中他需求的内存空间大小又有变化，这种变化就导致连续分配的方式很难进行动态的增加或者说减少）<p></p>
+&emsp;&emsp;（4）内存利用率低。<p></p>
+
+<li>非连续内存的设计目标：提高内存利用效率和管理灵活性。<p></p>
+&emsp;&emsp;（1）允许一个程序的使用非连续的物理地址空间。<p></p>
+&emsp;&emsp;（2）允许共享代码和数据。<br>
+&emsp;&emsp;每个进程都要执行代码，这些进程之间有很多代码是共同的，那各个进程也会用到一些数据是共用的。我们希望通过共享数据和代码实现减少内存的使用量。比如说两个应用进程都要用到同一个函数库，那么把这个函数库的代码放到内存后，如果它们两个都能访问的话，这样需要占用的内存区域就变少了。<p></p>
+&emsp;&emsp;（3）支持动态加载和动态链接。我们想要灵活，比如进程想再要内存的时候再给它加一块，或者说其中某一块大小的动态变化，有了非连续内存分配之后呢，我们就可以很方便的能够支持动态加载和动态链接。<p></p>
+
+<hr>
+<h3 id="1-2-非连续内存分配的实现"><a href="#1-2-非连续内存分配的实现" class="headerlink" title="1.2 非连续内存分配的实现"></a>1.2 非连续内存分配的实现</h3><li>非连续内存分配需要解决的问题：<p></p>
+&emsp;&emsp;（1）如何实现虚拟地址到物理地址的转换：<br>
+&emsp;&emsp;程序里在实现的时候，它希望是说给OS一个逻辑地址，OS要告诉它这个地址存在物理内存的什么地方，这种转换如果它是连续的，那么OS只要知道它的起始地址在哪，那么剩下的问题就都在这个进程空间的区域里了。那么如果不连续了，那这时候这个转换就有可能是说在哪一段逻辑地址，转换的区域在内存里的某一块地方，而逻辑地址的另一段虽然在逻辑地址里看是连续的，但可能要转到物理内存的另外一块地方里。这两种区域的不同就会导致这个转换过程会比较复杂。这种转换我们在实现的时候有两种选择。
+<li>软件实现（灵活，开销大）：<br>
+&emsp;&emsp;比如说往内存存数据，如一个排序程序。那由于OS没有办法事先确定它要排序的数据总量，那么这时给它分配多大的存储空间都有不合适的清空。我们会说在数据结构里学会有什么办法？说我们在这里可以先读一部分进来，排完后放到硬盘上去，再读一部分进来排完后放到硬盘上，最后再把排好的重新捋一遍，这就是数据结构里的外排序，那这种办法也可以用到操作系统里的内存分配上来。如果说代码空间存不下，即所有的代码存内存里存不下的话，那这时候可以把其中要执行的代码放到内存里，把另外一部分代码放到硬盘上，这个往硬盘和内存中倒换的操作可以由软件来做，也跟刚才说的数据外排序类似。这种做法是通过操作系统软件，或者说甚至于是应用程序来干的。
+<li>硬件实现（够用，开销小）：<br>
+&emsp;&emsp;如果你要想用硬件来实现的话,原因在于是地址转换过于频繁，基本上是说每要执行一条指令，都会去访问内存，那都要做转换。这时用硬件来实现它的效果是比较好的，开销比较小。而且这个转换相对来说它要计算的过程是比较简单的重复，这样也适合于用硬件来实现。<p></p>
+
+<p>&amp;emsp;&amp;emsp;（2）非连续内存分配的硬件辅助机制：<br><br>&amp;emsp;&amp;emsp;还有一个问题是说，要把一个进程分配的内存放到不连续的地方，那么每一块的大小是多大?我们这里有两种办法：段式存储(segmentation)和页式存储(paging)。简单来说这两者区别就是段式存储分的块比较大，它以一个段作为一个基本单位，那么在分配的时候这一个段里的内容必须在物理内存里是连续的，不同段之间是可以放到不同地方的。页式是把它分成更小的块，这个块名字叫页，那么在分配时以页为单位，页与页之间是不连续的，那由于这两者分配情况的不同，它们俩在实现的时候会有很大的区别。</p>
+<hr>
+<h2 id="2-段式存储管理"><a href="#2-段式存储管理" class="headerlink" title="2. 段式存储管理"></a>2. 段式存储管理</h2><p>&amp;emsp;&amp;emsp;在段式存储管理，我们会来说明段的地址空间是如何来组织的，然后在段式存储管理当中内存访问是如何进行的。</p>
+<li>段地址空间：<p></p>
+&emsp;&emsp;在段式存储管理当中，我们把进程的地址空间看成式若干个段组成的，下图是一个实例。比如说程序，有主代码，有子模块，那各个子模块可以看成是各个独立的一个段，主代码也是一个段，然后公共库可以看成是另外一个段，这几个都是代码。同时还有一些堆栈，初始化的数据，符号表，这样一些数据段。我们把它组织成一个段地址空间的话，实际这时我们希望能够把进程的地址空间能够以更精细，更灵活的方式把它分离开，分离开之后可以实现更好的共享。
+
+<p><img src="https://s2.loli.net/2022/03/26/Z3JijV2HsQNCquL.jpg" alt="段地址空间"></p>
+<hr>
+<h3 id="2-2-段式地址空间的不连续二维操作"><a href="#2-2-段式地址空间的不连续二维操作" class="headerlink" title="2.2 段式地址空间的不连续二维操作"></a>2.2 段式地址空间的不连续二维操作</h3><p>&amp;emsp;&amp;emsp;有了上面关于段地址空间的描述，我们就可以把逻辑地址空间转换成一个不连续的二维结构。<br><img src="https://s2.loli.net/2022/03/26/NO12EbqyWC6IflS.jpg" alt="段式地址空间的不连续二维结构"><br>&amp;emsp;&amp;emsp;我们把代码分成了几个部分，那这几个部分的各个部分内部它是需要连续的，我们会用它的偏移量来进行访问。但各个部分之间，我们很少有从一个段去访问另一个段的这种情况。有了这个讨论之后，我们就可以把段地址空间的逻辑视图转换成这样一个结构。<br><img src="https://s2.loli.net/2022/03/26/yzcGx4sVrPlOFQC.jpg" alt="段地址空间的逻辑视图"><br>&amp;emsp;&amp;emsp;逻辑地址到物理地址空间里，它就可以是不连续的。那由于各个段之间我们是相对可以把它很好地分离开，所以这种不连续对我们地访问带来的影响是相对来说比较小的。有了这种概念之后，那么这时我们来看访问过程是怎样的。</p>
+<hr>
+<h3 id="2-3-段访问机制"><a href="#2-3-段访问机制" class="headerlink" title="2.3 段访问机制"></a>2.3 段访问机制</h3><p>&amp;emsp;&amp;emsp;首先，我们可以把理解为段实际上是访问方式和存储数据等属性相同的一段地址空间。这一段我们要求它是连续的。每一个段对应到一块连续的内存块，然后若干个段组成进程的逻辑地址空间。<br><br><img src="https://s2.loli.net/2022/03/26/zK3xqk7Ob49tGfS.jpg"><br>&amp;emsp;&amp;emsp;。逻辑地址被分成一个二元组(s,addr)，段号(s)和段内偏移(addr)。那原来的地址是连续的若干位，在段式地址空间里我们把它分成两段，段内和段内偏移，转换过来的逻辑结构就变成是段号和段内偏移。我们在访问的时候，必须把它转换为原来的地址。有了这种地址的划分之后，它的访问过程会是什么样子呢？<br><img src="https://s2.loli.net/2022/03/26/tr7jybvi5wYCf4c.jpg"><br>&amp;emsp;&amp;emsp;图中右边是进程的物理地址空间，然后程序在CPU上执行，它要访问一个存储单元的时候，首先是看它的逻辑地址，我们把它分成了两段，即段号和段内偏移。首先用段号去查进程的段表，所有的段号在这里都有一项，每一项对应一个段描述符。这里的基本内容是段的起始地址和它的长度，我们是可以用操作系统的软件对它进行控制的。也就是说每个段在什么位置，它的相关信息是由操作系统控制的。有了这个我们可以得到段的长度之后，那硬件做什么呢？存储管理单元(MMU)会把这个长度和偏移取出来作比较，看看是不是越界，越界会出异常，如果说偏移是小于等于它的长度的那么是合法的访问。然后在MMU里再利用段基址加上偏移就可以找到实际要访问的内容（物理地址）了。</p>
+<hr>
+<h2 id="3-页式存储管理"><a href="#3-页式存储管理" class="headerlink" title="3. 页式存储管理"></a>3. 页式存储管理</h2><h3 id="3-1-页式存储管理概念"><a href="#3-1-页式存储管理概念" class="headerlink" title="3.1 页式存储管理概念"></a>3.1 页式存储管理概念</h3><p><img src="https://s2.loli.net/2022/03/26/YkDLUoQlrN83h94.jpg"><br>&amp;emsp;&amp;emsp;在页式存储管理当中，它把物理的地址空间分成的基本单位叫页帧，或者叫帧(frame)。这个大小是2的n次幂，那么为什么会是2的n次幂呢？原因在于我们要在地址转换的过程当中让地址转换比较方便，那在计算机里二进制的移位是做乘法的一个非常重要的快速的一个因素，所以这一定要求它是2的整次幂。比如说现在在32位机器里头，4K(4096)是常见的页帧大小（64位一般为8k）。<br><br>&amp;emsp;&amp;emsp;与此同时，逻辑地址空间也要划分相同大小的基本单位，这就是页(page)。帧和页的大小必须是相同的，它们的区别就在于一个用来描述逻辑页面，一个用来描述物理页帧。有了这两个基本的划分之后，那就有一个问题：页面到页帧的转换如何进行？<br><br>&amp;emsp;&amp;emsp;这个转换它就涉及到页表，在页表保存这个转换关系，有了这个转换关系之后如何让它高效地运行，那就是MMU(存储管理单元)和TLB(快表)。</p>
+<hr>
+<h3 id="3-2-帧-Frame"><a href="#3-2-帧-Frame" class="headerlink" title="3.2 帧(Frame)"></a>3.2 帧(Frame)</h3><p>&amp;emsp;&amp;emsp;页帧是我们对物理内存基本块的名称，下面用一个示意图来描述页帧号和帧的偏移。<br><br><img src="https://s2.loli.net/2022/03/26/8PIahKOZelWyMtC.jpg"><br>&amp;emsp;&amp;emsp;那么在这里我们看到左边是物理地址空间，我们把物理地址组织成一个二元组(f,o)，f表示frame即帧号，o表示offset即偏移量。地址我们就把它分成两段，S是帧的位数，剩下的F+S是页帧号的长度。这里的地址转换方法是： <strong>物理地址&#x3D;f*2^S+o</strong> 。先用帧号f去看它在第几帧，然后在帧内去看它的偏移量。用这种方式我们就可以得到每一个物理内存当中的存储单元所在的位置。下面看一个帧的计算实例。<br><br><img src="https://s2.loli.net/2022/03/26/CyenK1QEbS9dzRr.jpg" alt="os6_7.jpg"><br>&amp;emsp;&amp;emsp;在实际计算之前，先假定地址空间是16位的，然后它的页大小是512字节(2的9次方)。首先我们把一个物理地址分成两段，1到9是第一段，然后10到16是第二段。然后表示成一个二元组(3,6)，前面是3(f)，后边是6(o)，那这时候它们对应位置在哪呢？我们从右边竖着的物理地址空间从下往上数到第3块，这一块(帧)里数它偏移量是6，那这过程什么样呢？我们用之前提到的物理地址(f*2^S+o)计算公式来计算。需要知道你的S就是一帧的长度，它是2的9次方，512字节。F是帧号的位数(F&#x3D;16-S)，S，f，o代入最后得到这样一个结果(1542)。<br></p>
+<p>(百度百科：物理地址：内存单元所看到的地址。逻辑地址空间为2^m，且页大小为2^n，那么逻辑地址的高m－n位表示页号，低n位表示页偏移。)</p>
+<hr>
+<h3 id="3-3-页-page"><a href="#3-3-页-page" class="headerlink" title="3.3 页(page)"></a>3.3 页(page)</h3><p>&amp;emsp;&amp;emsp;逻辑地址空间的划分和物理地址空间的划分是类似的，都是划分成大小相等的。但是页号和帧号通常情况下是不一样的，因为逻辑地址空间它的页号是连续的，到对应的帧号它就不一定。<br><br><img src="https://s2.loli.net/2022/03/26/3FEwt4puS6kdnx5.jpg"><br>&amp;emsp;&amp;emsp;我们也是把逻辑地址划分成一个二元组(p,o)，p表示页号，o表示页内偏移。页内偏移长度和页大小是一致的，S位对应着它是2的s次方个字节为一页，然后页号实际上是前面(p+s至s)这一段。这个时候逻辑地址空间的转换怎么来进行呢？<strong>虚拟地址(逻辑地址)&#x3D;p*2^S+o</strong> ,就是P左移s位加上o得到你访问的存储单元的位置。</p>
+<hr>
+<h3 id="3-4-页式存储中的地址映射"><a href="#3-4-页式存储中的地址映射" class="headerlink" title="3.4 页式存储中的地址映射"></a>3.4 页式存储中的地址映射</h3><p><img src="https://s2.loli.net/2022/03/26/yK7XYqjdw82vtQR.jpg"><br>&amp;emsp;&amp;emsp;有了以上的帧和页之后，那么就有了一个逻辑地址到物理地址转换的问题。在逻辑地址空间里它的页号是连续的，在物理地址空间帧号是不连续的。两者之间这个对应怎么来进行呢，那这就是我们说到的中间需要有个页表。<br><br>&amp;emsp;&amp;emsp;在页表里怎么来做呢？逻辑地址空间里的页号是p，物理地址空间里的帧号是f，这两个对应怎么进行呢？我们通过一条指令的执行过程来展示它。<br><img src="https://s2.loli.net/2022/03/26/754EM2CTy86VaDF.jpg"><br>&amp;emsp;&amp;emsp;程序在CPU里执行的时候，它得到的地址是表示为p,o，逻辑页号和页内偏移。然后用这个p到页表里去找它对应的f，这个页表保存了逻辑页号到物理页号之间的对应关系。那么这个表在哪呢？这个表它由页表基址来指定它的开始位置，然后用页号作为它的下标去查这个页表数组就能找到相应的页表项。每个页表项有一个固定的长度，帧号是页表项里存的字段之一。得到对应的f之后，就把f和o加在一起（页内偏移和帧内偏移是一样的），就能得到实际物理地址。</p>
+<hr>
+<h2 id="4-页表概述"><a href="#4-页表概述" class="headerlink" title="4.页表概述"></a>4.页表概述</h2><h3 id="4-1-页表结构"><a href="#4-1-页表结构" class="headerlink" title="4.1 页表结构"></a>4.1 页表结构</h3><p><img src="https://s2.loli.net/2022/03/26/6VLWKsucjmkedli.jpg" alt="os6_12.jpg"><br>&amp;emsp;&amp;emsp;每个进程都有一个页表，然后每个页面都在页表中对应一个页表项，这个页表项保存这个逻辑页号到物理帧号之间的转换。还有一条需要说明的就是页表里的内容会随着程序运行发生变化，这种变化就使得我们有可能动态的去调整分配给一个进程的内存空间大小。再有一个就是这个表的基址在一个寄存器里，页表基址寄存器(PTBR:Page Table Base Register)，这个寄存器告诉你页表起始位置在哪。<br><br>&amp;emsp;&amp;emsp;页表项除了帧号还有什么内容呢？我们说可以在程序运行的过程当中来给它分配新的物理帧放到进程地址空间里，那这种新加入状态的改变就是靠页表项的标志来修改的。我们常用到的几个标志位为存在位，修改位和引用位。存在位是指我们有一个逻辑页号是否有一个物理帧和它相对，如果有则存在位是1，这一条是表示我们这个页对应的分配的动态性。修改位只是说对应的这个页面里的内容是否修改了，然后引用位是指这个页面在过去一段时间里是否有过对它的引用，是否访问过这个页面里的某一个存储单元。</p>
+<p>（百度百科：（32位）页表项的高20位指向内存页基址，低12位设置页面状态和权限。<br>***）</p>
+<hr>
+<h3 id="4-2-页表地址转换实例"><a href="#4-2-页表地址转换实例" class="headerlink" title="4.2 页表地址转换实例"></a>4.2 页表地址转换实例</h3><p>&amp;emsp;&amp;emsp;下面我们来通过一个实际的过程来看这几个标志位当中的存在位的作用。<br><img src="https://s2.loli.net/2022/03/26/ZM8PfAqnrcRyxzH.jpg"><br>&amp;emsp;&amp;emsp;这是一个实际系统当中的实例。左边是逻辑地址空间，右边是物理地址空间。分页之后，还有每一页上页的结束页号，页内偏移的最后单位。中间是前提，每页有2的10次方(1024字节)，总共是一个16位的系统。前面讲过，我们有逻辑地址，CPU在执行指令的时候把它转变位物理地址。16位地址是从0到15，那0到9是页内偏移，10到15是页号。页表在这里完成这个转换。如果说在我们没有标志位的情况下，每一个逻辑页号都对应过来有个帧号，和偏移组合起来找到实际的位置。那现在有了存在位之后，我们就可能有些没有（存在位为图中标志位区域里的第二位），也就是说这一页对应过来没有对应的物理帧号，那这时候相当于并没有给这个页面分配相应的存储，这使得我们在这里可以有动态的变化。</p>
+<hr>
+<h3 id="4-3-页式存储管理机制的性能问题"><a href="#4-3-页式存储管理机制的性能问题" class="headerlink" title="4.3 页式存储管理机制的性能问题"></a>4.3 页式存储管理机制的性能问题</h3><p><img src="https://s2.loli.net/2022/03/26/OivEy2ac61xGlmD.jpg"><br>&amp;emsp;&amp;emsp;页式存储管理可以让我们不连续地分配存储空间，但是它也会带来很多的问题，图中列的第一个问题是访问性能的问题。<br><br>&amp;emsp;&amp;emsp;我们在没有页表的时候要访问一个存储单元，给的直接是物理地址，物理地址直接去访问就能拿到数据。但因为我们是实现非连续内存分配，这时候加了个页表在中间，那每访问一个存储单元的时候呢，我都需要先知道它逻辑页号对应的物理帧号是多少，那这个转换都要求先访问页表，那这样一来访问就变成两次了。先读页表项看看对应的物理帧号是多少，然后根据这个帧号和页内偏移加在一起得到物理地址再去访问实际的内容。这样的话读写性能就会大幅下降，读写量也会大幅增加。<br><br>&amp;emsp;&amp;emsp;第二个问题是说我们有了一个页表，如果说这时我的内存地址空间很大，那这个页表的存储容量也是不能忽视的。像刚才说的示例里，32K的物理内存，1K占一项那就有32项。如果每一项占4字节的话，那页表就占128字节。这个量相对来说很小，而我们现在实际系统达到了64位，也就是说我们的地址总线会是64位地址总线。如果这时候仍然使用1k作为它的页面大小，那这个时候会有多少个页面？64位是2的64次方，页的大小是2的10次方，那就是2的54次方个页面。2的54次方个页面，如果每一个页表项占64位的地址，光地址的话那就是64(bit)，那就要占8个字节。那这样的话一个页表项至少是8个字节，实际上如果加上标志位它仍然是不够的。假定它就是8个字节，那2的54次方每一个占8个字节，那就是2的57次方，2的57次方来存页表，这个存储空间也是足够大的。<br><br>&amp;emsp;&amp;emsp;针对页表引入的这些好处之外，它又带来了麻烦，这些麻烦怎么处理呢？以下是两种做法：</p>
+<li>缓存(Caching)<br>
+&emsp;&emsp;由于我们在程序执行的时候访问的数据和代码都具有一定的相邻性，比如访问一条指令接下来执行的是它下一条指令，或访问数组的第一个元素，接下来访问的可能是第二个元素。这时候它们可能都在一页里，这种可能性是比较大的。这样我们就把得到的页表项缓存下来，下次利用缓存有极大的可能性是能直接访问到物理内存的（缓存命中）。
+<li>间接(Indirection)访问<br>
+&emsp;&emsp;间接访问是说页表很大，对付这种很长的表很麻烦。那我们就把它切断，间接访问。先找它是找哪个子表里，再从它的子表去找，这种间接访问对应过来就是多级页表。
+
+<hr>
+<h2 id="5-快表和多级页表"><a href="#5-快表和多级页表" class="headerlink" title="5. 快表和多级页表"></a>5. 快表和多级页表</h2><h3 id="5-1-快表-Translation-Look-aside-Buffer-TLB"><a href="#5-1-快表-Translation-Look-aside-Buffer-TLB" class="headerlink" title="5.1 快表(Translation Look-aside Buffer,TLB)"></a>5.1 快表(Translation Look-aside Buffer,TLB)</h3><p>&amp;emsp;&amp;emsp;快表实际上就是把近期访问过的页表项缓存到CPU里。在没有快表的情况下，获取物理帧号的过程是通过逻辑页号在内存中去查页表，找到物理页号然后加偏移得到物理地址。那么快表怎么办呢？我们在CPU里加上一组关联存储器，关联存储器是说我这里有一个key，进来之后它可以并行地同时查所有地这些表项，有匹配的就找出来。那么原先在内存里访问一次你觉得费事，到快表里访问这么多次它就不费事吗？实际上是在CPU里它的速度会很快，当然由于它的速度快，成本高，功耗大，所以这里不能做得很大。如果说匹配得上，那这时候就能得到物理帧号，这就不需要到内存访问页表了。因为快表容量很小，没办法把整个页表装到里去，那么就会有不命中的情况。不命中时就得再去找内存当中的页表，找到这个页表之后得到帧号，同时再把这个内容缓存到CPU的快表里，下次如果再访问这个页号就不用访问内存了。这是快表的基本原理。<br><img src="https://s2.loli.net/2022/03/26/4fdlBjq9xugHh12.jpg"></p>
+<hr>
+<h3 id="5-2-多级页表"><a href="#5-2-多级页表" class="headerlink" title="5.2 多级页表"></a>5.2 多级页表</h3><p><img src="https://s2.loli.net/2022/03/26/P9Hu7jrwKXsDV3U.jpg"><br>&amp;emsp;&amp;emsp;多级页表是通过间接引用，将页号分成若干级，我们原来的逻辑地址格式是页号加页内偏移，现在变成了三级页号，p1,p2,p3然后再加上页内偏移。和它相对应的，我们的页表也会形成一个树状结构，比如说原来一张大的线性页表把它切成若干段，这切的个数和最后一级页表的宽度是一致的，然后每一个子页表的起始地址作为上一级页表的物理帧号，填到上一级页表当中。在第二级页表的宽度和第二级页号的宽度是一致的，然后第二级页表的起始地址再作为第一级页表项的物理帧号，那这时候它的项数和第一级页表宽度是一致的。<br><br>&amp;emsp;&amp;emsp;在这种情况下，我们要访问相应的物理内存单元是怎么访问呢？是从第一级查第二级再查第三级，那这个时候我们整个访问次数就是k+1（k为级数）。如果是三级那就是4次，具体的访问过程是这样的：<br><br>&amp;emsp;&amp;emsp;第一级作为第一级页表的偏移找到第二级页表的起始，第二级页表项再作为在第二级页表当中的偏移加在一起找到第三季页表的起始。最后通过p3作为第三级页表当中的偏移找到物理帧号，就可以找到物理地址。<br><br>&amp;emsp;&amp;emsp;通过建立页表树，我们可以有效地减少每一级页表的长度，那如果说所有的页表项都存在的话，用多级页表实际上对它的存储并没有减少。但实际上，我们实际运行的进程多数并不会用到整个所有的逻辑地址空间。在这种情况下，我们可以通过各级页表的存在位，把不存在的省掉。如果说在第一级页表里有一个下一块区域都不存在的话，节省出来的空间就会大幅增加。</p>
+<hr>
+<h3 id="5-3-二级页表实例"><a href="#5-3-二级页表实例" class="headerlink" title="5.3 二级页表实例"></a>5.3 二级页表实例</h3><p>&amp;emsp;&amp;emsp;我们通过一个简单的，但是更具体的例子——二级列表来看是怎么做的。<br><img src="https://s2.loli.net/2022/03/26/nMIRaNTs3UplbXH.jpg"><br>&amp;emsp;&amp;emsp;这里是把20位的地址切成了三段，1-10，10位作为页内偏移，然后前面切成两个5位的页号。那在实际访问是什么样的呢？先看第一级(p1)，那第一级页表的起始地址在哪？它是写到固定寄存器里的，在Intel的CPU上有一个叫CR3的寄存器，在这个寄存器里存的起始位置。加上第一级页号作为它的索引（下标），找到第二级页表的起始页号。接下来把找到的第二级页表的起始位置加上第二级的页表号，找到物理帧号，再把偏移加上得到实际的物理地址。有了这样一种做法，我们就可以很方便地利用多级页表减少整个页表的长度。</p>
+<hr>
+<h2 id="6-反置页表"><a href="#6-反置页表" class="headerlink" title="6. 反置页表"></a>6. 反置页表</h2><h3 id="6-1-大地址空间问题"><a href="#6-1-大地址空间问题" class="headerlink" title="6.1 大地址空间问题"></a>6.1 大地址空间问题</h3><p><img src="https://s2.loli.net/2022/03/27/ln86zhq7Bar2pKO.jpg"><br>&amp;emsp;&amp;emsp;提出反置页表的原因还是说我们多级页表它访问存储空间的次数比较多，然后特别是在大地址空间的情况下。由于大地址空间和多级页表和逻辑地址空间的大小有对应关系。每一个逻辑页面都会对应着页表项的一项，那这样的话进程数目的增加，都会导致页表的数目和占用空间增大。那针对类似的情况，反置页表和页寄存器是两个类似做法。它们在这里的做法是让页表和物理地址空间的大小相对应起来，而不是说像多级页表里和逻辑地址相对应起来，那这样的话进程数目的增加和虚拟地址空间的增大都对这页表占用的空间都没有影响。</p>
+<hr>
+<h3 id="6-2-页寄存器-Page-Registers"><a href="#6-2-页寄存器-Page-Registers" class="headerlink" title="6.2 页寄存器(Page Registers)"></a>6.2 页寄存器(Page Registers)</h3><p>&amp;emsp;&amp;emsp;在页寄存器里，它是把每一个物理帧和一个页寄存器相对应，那在这个寄存器存的内容都有哪些呢？<br></p>
+<p>&amp;emsp;&amp;emsp;一个是使用位，即这个物理帧是否被进程所占用。第二个是页号，占用页号相当于一个进程占用了这一页，它的逻辑页号是多少，那么就在这里保存。这样的话就能知道这个物理帧分配给了哪个进程，它的逻辑地址是多少。还有一个是保护位，它是来约定这一页的访问方式，比如可读，可写。<br><br>&amp;emsp;&amp;emsp;我们看它占用存储的情况，通过一个例子来说明。<br><img src="https://s2.loli.net/2022/03/27/hziVCnYkbtOoFwG.jpg"><br>&amp;emsp;&amp;emsp;它整个系统里有16M的物理内存，然后页面大小是4K，那么16M和4K相除，说明有4096个页面。那么这4096个页面它的页寄存器占多大呢？在这假定每一个页寄存器占8字节，那4096*8是32K字节，那这32K字节和16M物理内存比较起来，比例只有0.2%，相对来说还是比较小的。这时候它和虚拟内存的大小就没有关系了，那么在这创建多少个进程，它只是每一个物理页帧和一个页寄存器相对应。<br><br><img src="https://s2.loli.net/2022/03/27/xboyLtsvFkrmnp2.jpg"><br>&amp;emsp;&amp;emsp;这种方法它的好处是跟物理内存相比较起来占用的空间很小，而且与逻辑地址空间没关系，但是它也有很大的麻烦。在多级页表里，我们这个信息查询是从逻辑页号到物理帧号，利用下标查页表里的内容，就可以找到它的帧号。而现在页寄存器排序的方法是帧号，要找的是里面的逻辑页号是否是想找的那个，那么就要在寄存器里进行搜索，这个搜索是会比较困难的。</p>
+<hr>
+<h3 id="6-3-页寄存器中的地址转换"><a href="#6-3-页寄存器中的地址转换" class="headerlink" title="6.3 页寄存器中的地址转换"></a>6.3 页寄存器中的地址转换</h3><p><img src="https://s2.loli.net/2022/03/27/nyIoYNxvqEWGMFD.jpg"><br>&amp;emsp;&amp;emsp;CPU生成的是逻辑地址，那么在页寄存器的机制下，它所对应的物理地址是多少呢？那么这个多少呢是把逻辑地址做Hash，Hash的原因是可以减少搜索范围。然后如果说有冲突，Hash之后的值可能是两个不同的逻辑地址对应到同一个Hash值上，那这种冲突是要解决的。这时候我们可以把快表来和页寄存器机制一起来用，那么怎么用呢？对逻辑地址进行Hash，然后在快表去查找相应的页表项，如果说查找过程中出现冲突，那么这时候就要遍历所有的冲突项链表，如果还是找不到就产生异常。不过在这里它也有一个问题，和我们前面说的快表是一样的。由于快表的容量有限，它的功耗又很大，这对于页寄存器机制还是有很大影响的。比如StrongARM上的快表功耗占到27%，这是不可以忽视的。</p>
+<hr>
+<h3 id="6-4-反置页表"><a href="#6-4-反置页表" class="headerlink" title="6.4 反置页表"></a>6.4 反置页表</h3><p>&amp;emsp;&amp;emsp;反置页表和页寄存器的做法区别是在于它把进程ID也考虑进来了。那它和页寄存器做法一样的是需要进行hash，不同的地方是把进程ID加进来一起到hash，hash完的结果也可能有冲突，那么也需要解决冲突，hash完的结果是以页帧号来排序的。那么这里找到的结果是说，我们需要到相应的页表项里去核对hash之前和之后映射的页表项里的进程ID和逻辑页号是否一致，如果一致这就是我们要找的那一项，就能得到它的物理帧号了。如果不一致就会产生冲突，对于冲突情况我们以一个例子来说。<br><img src="https://s2.loli.net/2022/03/27/IS2iDdJcsoVfHnl.jpg"><br>&amp;emsp;&amp;emsp;一个逻辑地址加上它的进程ip，首先做hash，hash完的结果到相应的反置页表中进行查找，看进程id和逻辑页号是否和hash而来的一样，如果不一样则说明有冲突。例子是有冲突，那么next会告诉你下一项在哪，然后再到下一项进行核对，这时候两者是一样的，那么它的序号(index)就是要找的页帧号。<br><br>&amp;emsp;&amp;emsp;到目前为止我们介绍了三种做法来缓解或者是解决页表所带来的麻烦。一种是快表，它是通过缓存的机制来减少对页表的访问；第二种是多级页表，多级页表是通过多级来减少页表的大小；反置页表是另一种减少页表大小的做法。这三种方法都有助于解决或者是缓解我们引入页表所带来的麻烦，那在这些麻烦解决掉之后，我们现在用到的计算机都是采用页表的机制来进行转换的。</p>
+<hr>
+<h2 id="7-段页式存储管理"><a href="#7-段页式存储管理" class="headerlink" title="7. 段页式存储管理"></a>7. 段页式存储管理</h2><h3 id="7-1-段页式存储管理的需求"><a href="#7-1-段页式存储管理的需求" class="headerlink" title="7.1 段页式存储管理的需求"></a>7.1 段页式存储管理的需求</h3><p><img src="https://s2.loli.net/2022/03/27/CAlurjE7xqk19Hc.jpg"><br>&amp;emsp;&amp;emsp;段页式存储管理实际上是段式和页式做结合，那这种结合的思路实际上是由于段式存储分的块比较大，每一块里存储的内容是同一个段，这同一个段的访问方式和存储的数据都是相同或相类似的，这样一来它去做存储的保护是比较方便的。而另一种方法页式存储，是因为它分了比较小的块，那这样的话它在内存利用效率和内外存之间的存储的后备这方面比较有优势。这两种做法各有各自优缺点，我们有可能把它结合吗？做起来会是什么样的？</p>
+<hr>
+<h3 id="7-2-段页式存储管理"><a href="#7-2-段页式存储管理" class="headerlink" title="7.2 段页式存储管理"></a>7.2 段页式存储管理</h3><p>&amp;emsp;&amp;emsp;段页式存储管理的机制，它的做法是在段式存储管理的基础上，给每个段加一级列表。那我们原来说逻辑地址到物理地址，这个逻辑地址怎么分呢？原来要么是段号加段内偏移，要么是页号加页内偏移，现在变成是段号，页号然后再加上页内偏移。如果说添加的是多级页表，那页号还可以再分多级。然后从这最后变到的是物理帧号加页内偏移。那么它怎么来做呢？<br><img src="https://s2.loli.net/2022/03/27/dWkM53NhKaEBbjD.jpg" alt="g"><br>&amp;emsp;&amp;emsp;首先是段号，由STBR寄存器找到段表基址，然后通过段号找到相应段表项。这个段表项里有相应的页表基址。用页表基址加上页号，就能得到对应的页表项，之后就能得到物理帧号。用物理帧号和页内偏移加在一起就可以访问到实际的存储单元了。</p>
+<hr>
+<h2 id="7-2-段页式存储管理中的内存共享"><a href="#7-2-段页式存储管理中的内存共享" class="headerlink" title="7.2 段页式存储管理中的内存共享"></a>7.2 段页式存储管理中的内存共享</h2><p>&amp;emsp;&amp;emsp;这种方式可以很方便地实现内存共享。那么共享的方法是什么呢？我们可以在段表的基址上加上一个共享段，指向相同的页表，那这两个段就共享了。那我们来看一下例子。<br><img src="https://s2.loli.net/2022/03/27/qu86cn5EAbNszD2.jpg"><br>&amp;emsp;&amp;emsp;这是段页式的访问方式，其中共享段指向它的页表，页表指向它的存储地址空间。那如果说想把这个段和另一个进程共享怎么办呢？另一个进程它有自己的段表，这里它们俩有一个共享段指向同一个页表，那么这一块区域就变成它们俩共享了。<br><br>&amp;emsp;&amp;emsp;那我们看到在页式，段式和段页式里，共享的做法都是类似的。到这个地方为止，我们说清楚了非连续内存分配的几种做法：段式，页式和段页式。它们的共同点是分配给同一个进程的内存块，它是可以不连续的，而它们的区别在于分配的块大小不同，段式分配的块是很大的，页式分配的块是很小的。而段页式是把这两种结合起来。而在非连续内存分配的做法里所面临的问题是中间要加一级段表或页表，这个表的加入会使得原来的连续存储方式里所没有的一些问题在这里出现。比如说页表的大小很大，针对这种问题我们又有一系列做法，比如说快表做缓存，多级页表做间接访问，或者反置页表。那么这些做法都可以改进我们由于引入非连续存储所带来的麻烦。当然我们在这里说到的是它们的基本做法，在实际系统里的做法跟基本原理都是类似的，但其中很多的实现细节需要我们在后续阅读当中来进一步了解。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">Jiang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2022/03/27/os_study_6/">http://example.com/2022/03/27/os_study_6/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a><a class="post-meta__tags" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/">操作系统原理</a></div><div class="post_share"><div class="social-share" data-image="/img/AVA.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/04/02/redis-study-4/"><img class="prev-cover" src="/img/WIF2.png" onerror="onerror=null;src='/img/AVA.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Redis学习笔记（4）：list类型API大全(Redis 7.0)</div></div></a></div><div class="next-post pull-right"><a href="/2022/03/24/redis-study-3/"><img class="next-cover" src="/img/WIF2.png" onerror="onerror=null;src='/img/AVA.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Redis学习笔记（3）：Hash类型基本API</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2021/11/19/os_study_1/" title="THU《操作系统》学习笔记——原理1：操作系统概述"><img class="cover" src="/img/WIF2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-19</div><div class="title">THU《操作系统》学习笔记——原理1：操作系统概述</div></div></a></div><div><a href="/2021/11/22/os_study_3/" title="THU《操作系统》学习笔记——原理2： 启动、中断、异常和系统调用"><img class="cover" src="/img/WIF2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-22</div><div class="title">THU《操作系统》学习笔记——原理2： 启动、中断、异常和系统调用</div></div></a></div><div><a href="/2022/03/20/os_study_5/" title="THU《操作系统》学习笔记——原理3：物理内存管理：连续内存分配"><img class="cover" src="/img/WIF2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-03-20</div><div class="title">THU《操作系统》学习笔记——原理3：物理内存管理：连续内存分配</div></div></a></div><div><a href="/2021/11/21/os_study_2/" title="THU《操作系统》学习笔记——实验0 操作系统实验环境准备和x86-32硬件介绍"><img class="cover" src="/img/WIF2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-21</div><div class="title">THU《操作系统》学习笔记——实验0 操作系统实验环境准备和x86-32硬件介绍</div></div></a></div><div><a href="/2021/11/30/os_study_4/" title="THU《操作系统》学习笔记——实验一：bootloader启动ucoreos"><img class="cover" src="/img/WIF2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-30</div><div class="title">THU《操作系统》学习笔记——实验一：bootloader启动ucoreos</div></div></a></div><div><a href="/2022/04/16/os_study_7/" title="THU《操作系统》学习笔记——实验2：物理内存管理"><img class="cover" src="/true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-16</div><div class="title">THU《操作系统》学习笔记——实验2：物理内存管理</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/AVA.jpg" onerror="this.onerror=null;this.src='/img/AVA.jpg'" alt="avatar"/></div><div class="author-info__name">Jiang</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#THU%E3%80%8A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%8E%9F%E7%90%864%EF%BC%9A%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%9A%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D"><span class="toc-number">1.</span> <span class="toc-text">THU《操作系统》学习笔记——原理4：物理内存管理：非连续内存分配</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%9A%84%E9%9C%80%E6%B1%82%E8%83%8C%E6%99%AF"><span class="toc-number">1.1.</span> <span class="toc-text">1. 非连续内存分配的需求背景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%9A%84%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 非连续内存分配的设计目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 非连续内存分配的实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%AE%B5%E5%BC%8F%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text">2. 段式存储管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%AE%B5%E5%BC%8F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E7%9A%84%E4%B8%8D%E8%BF%9E%E7%BB%AD%E4%BA%8C%E7%BB%B4%E6%93%8D%E4%BD%9C"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.2 段式地址空间的不连续二维操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E6%AE%B5%E8%AE%BF%E9%97%AE%E6%9C%BA%E5%88%B6"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.3 段访问机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E9%A1%B5%E5%BC%8F%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="toc-number">1.3.</span> <span class="toc-text">3. 页式存储管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E9%A1%B5%E5%BC%8F%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86%E6%A6%82%E5%BF%B5"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1 页式存储管理概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%B8%A7-Frame"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2 帧(Frame)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E9%A1%B5-page"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3 页(page)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E9%A1%B5%E5%BC%8F%E5%AD%98%E5%82%A8%E4%B8%AD%E7%9A%84%E5%9C%B0%E5%9D%80%E6%98%A0%E5%B0%84"><span class="toc-number">1.3.4.</span> <span class="toc-text">3.4 页式存储中的地址映射</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E9%A1%B5%E8%A1%A8%E6%A6%82%E8%BF%B0"><span class="toc-number">1.4.</span> <span class="toc-text">4.页表概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E9%A1%B5%E8%A1%A8%E7%BB%93%E6%9E%84"><span class="toc-number">1.4.1.</span> <span class="toc-text">4.1 页表结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E9%A1%B5%E8%A1%A8%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2%E5%AE%9E%E4%BE%8B"><span class="toc-number">1.4.2.</span> <span class="toc-text">4.2 页表地址转换实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E9%A1%B5%E5%BC%8F%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86%E6%9C%BA%E5%88%B6%E7%9A%84%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98"><span class="toc-number">1.4.3.</span> <span class="toc-text">4.3 页式存储管理机制的性能问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%BF%AB%E8%A1%A8%E5%92%8C%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8"><span class="toc-number">1.5.</span> <span class="toc-text">5. 快表和多级页表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E5%BF%AB%E8%A1%A8-Translation-Look-aside-Buffer-TLB"><span class="toc-number">1.5.1.</span> <span class="toc-text">5.1 快表(Translation Look-aside Buffer,TLB)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8"><span class="toc-number">1.5.2.</span> <span class="toc-text">5.2 多级页表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E4%BA%8C%E7%BA%A7%E9%A1%B5%E8%A1%A8%E5%AE%9E%E4%BE%8B"><span class="toc-number">1.5.3.</span> <span class="toc-text">5.3 二级页表实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%8F%8D%E7%BD%AE%E9%A1%B5%E8%A1%A8"><span class="toc-number">1.6.</span> <span class="toc-text">6. 反置页表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E5%A4%A7%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E9%97%AE%E9%A2%98"><span class="toc-number">1.6.1.</span> <span class="toc-text">6.1 大地址空间问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E9%A1%B5%E5%AF%84%E5%AD%98%E5%99%A8-Page-Registers"><span class="toc-number">1.6.2.</span> <span class="toc-text">6.2 页寄存器(Page Registers)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E9%A1%B5%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%AD%E7%9A%84%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.6.3.</span> <span class="toc-text">6.3 页寄存器中的地址转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E5%8F%8D%E7%BD%AE%E9%A1%B5%E8%A1%A8"><span class="toc-number">1.6.4.</span> <span class="toc-text">6.4 反置页表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%AE%B5%E9%A1%B5%E5%BC%8F%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="toc-number">1.7.</span> <span class="toc-text">7. 段页式存储管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E6%AE%B5%E9%A1%B5%E5%BC%8F%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86%E7%9A%84%E9%9C%80%E6%B1%82"><span class="toc-number">1.7.1.</span> <span class="toc-text">7.1 段页式存储管理的需求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E6%AE%B5%E9%A1%B5%E5%BC%8F%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="toc-number">1.7.2.</span> <span class="toc-text">7.2 段页式存储管理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-2-%E6%AE%B5%E9%A1%B5%E5%BC%8F%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86%E4%B8%AD%E7%9A%84%E5%86%85%E5%AD%98%E5%85%B1%E4%BA%AB"><span class="toc-number">1.8.</span> <span class="toc-text">7.2 段页式存储管理中的内存共享</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/05/15/unitystu__4%20-%20%E5%89%AF%E6%9C%AC/" title="面谈个人简介">面谈个人简介</a><time datetime="2022-05-15T12:12:02.000Z" title="Created 2022-05-15 20:12:02">2022-05-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/05/15/GoldFlake_2/" title="GoldFlake：API使用文档">GoldFlake：API使用文档</a><time datetime="2022-05-15T02:10:35.000Z" title="Created 2022-05-15 10:10:35">2022-05-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/05/12/GoldFlake/" title="GoldFlake：与竞争对手斗智斗勇！突发奇想的非连续时间戳雪花算法版本！">GoldFlake：与竞争对手斗智斗勇！突发奇想的非连续时间戳雪花算法版本！</a><time datetime="2022-05-11T16:00:35.000Z" title="Created 2022-05-12 00:00:35">2022-05-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/04/21/redis-study-6/" title="Redis学习笔记（6）：zset类型API大全(Redis 7.0)">Redis学习笔记（6）：zset类型API大全(Redis 7.0)</a><time datetime="2022-04-21T12:00:35.000Z" title="Created 2022-04-21 20:00:35">2022-04-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/04/16/os_study_7/" title="THU《操作系统》学习笔记——实验2：物理内存管理">THU《操作系统》学习笔记——实验2：物理内存管理</a><time datetime="2022-04-16T09:12:31.000Z" title="Created 2022-04-16 17:12:31">2022-04-16</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Jiang</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
